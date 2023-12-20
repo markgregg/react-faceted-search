@@ -1,0 +1,94 @@
+.optionListMain {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0px;
+  width: 100%;
+  color: var(--matcherEditOptionsColor, black);
+  border-top: var(--matcherEditOptionsBorder, 2px solid gainsboro);
+  border-left: var(--matcherEditOptionsBorder, 2px solid gainsboro);
+  border-bottom: var(--matcherEditOptionsBorder, 2px solid darkgray);
+  border-right: var(--matcherEditOptionsBorder, 2px solid darkgray);
+  border-radius: 4px;
+  animation: growDown 300ms ease-in-out forwards;
+  transform-origin: top center;
+  z-index: 999;
+  background: var(--matcherEditOptionsBackgroundColor, rgb(255, 255, 255));
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.optionListMain ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.optionListOption {
+  padding-left: 10px;
+  padding-right: 5px;
+  text-align: start;
+}
+
+.optionListActiveOption {
+  background: var(--optionListActiveOption, lightgray);
+}
+
+.optionListCategory {
+
+  font-weight: bold;
+  font-size: x-small;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+@keyframes growDown {
+  0% {
+    transform: scaleY(0);
+  }
+
+  80% {
+    transform: scaleY(1.1);
+  }
+
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+.optionStaticList {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  overflow: auto;
+}
+
+.optionStaticItem {
+  padding-left: 10px;
+}
+
+.optionStaticItem:hover {
+  color: darkgray;
+}
+
+.optionStaticHeader {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: x-small;
+}
+
+.optionStaticHeaderMenu {
+  position: relative;
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: x-small;
+}
+
+.optionStaticHeaderMenu:hover {
+  color: darkgray;
+}
+
+.subItemsList {
+  position: absolute;
+
+}

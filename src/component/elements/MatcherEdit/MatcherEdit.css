@@ -1,0 +1,14 @@
+.matcherEditMain {
+  flex-grow: 1;
+  display: flex;
+  align-self: end;
+}
+
+.matcherEditMain input {
+  border: none;
+  flex-grow: 1;
+}
+
+.matcherEditMain input:focus {
+  outline: none;
+}

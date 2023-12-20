@@ -1,0 +1,42 @@
+.optionsMain {
+  position: absolute;
+  top: -120px;
+  left: 320px;
+  display: flex;
+  padding: 20px;
+  background-color: gainsboro;
+  z-index: 9999;
+  border: 1px solid black;
+  flex-wrap: wrap;
+  flex-direction: row;
+  font-size: small;
+  row-gap: 10px;
+  column-gap: 20px;
+  align-items: center;
+}
+
+.optionGroup {
+  display: flex;
+  column-gap: 10px;
+}
+
+
+
+.optionGroup input {
+  max-width: 60px;
+}
+
+.optionCategoryPos {
+  user-select: none;
+  background-color: white;
+  width: 60px;
+  border: 1px solid black;
+  text-align: center;
+}
+
+.optionDone {
+  background-color: rgb(39, 161, 39);
+  width: 90px;
+  align-self: center;
+  padding: 5px;
+}

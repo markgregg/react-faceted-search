@@ -1,0 +1,38 @@
+.matcherViewMain {
+  /* border: dashed 1px black; */
+  padding-left: 2px;
+  padding-right: 2px;
+  display: flex;
+  background: var(--matcherViewMainBackgroundColor);
+}
+
+.matcherViewToolTip {
+  position: absolute;
+  left: 0px;
+  width: max-content;
+  background: var(--matcherViewTooltipBackgroundColor, rgb(255, 255, 255));
+  border: var(--matcherEditOptionsBorder, 1px solid rgb(204, 204, 204));
+  border-radius: 4px;
+}
+
+.deleteIcon {
+  color: var(--matcherViewMainDeleteIconColor);
+  height: 100%;
+}
+
+.deleteIcon:hover {
+  color: var(--matcherViewMainDeleteIconHowverColor, gray);
+}
+
+.matcherViewContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.matcherViewWarning {
+  background: var(--matcherViewWarningBackgroundColor, orange);
+}
+
+.matchViewCategory {
+  font-size: xx-small;
+}

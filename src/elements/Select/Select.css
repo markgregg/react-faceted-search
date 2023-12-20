@@ -1,0 +1,53 @@
+.selectMain {
+  position: relative;
+  border: var(--matcherEditOptionsBorder, 1px solid rgb(204, 204, 204));
+  border-radius: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  width: 100px;
+}
+
+.selectMainOptionList {
+  position: absolute;
+  top: calc(100% + 5px);
+  border: var(--matcherEditOptionsBorder, 1px solid rgb(204, 204, 204));
+  border-radius: 4px;
+  animation: growDown 400ms ease-in-out forwards;
+  transform-origin: top center;
+  z-index: 999;
+  background-color: var(
+    --matcherEditOptionsBackgroundColor,
+    rgb(255, 255, 255)
+  );
+  width: 100px;
+}
+
+.selectMain ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.selectMain li {
+  padding-left: 5px;
+  padding-right: 5px;
+  text-align: start;
+}
+
+.selectMain li:hover {
+  background: var(--optionListActiveOption, lightgray);
+}
+
+@keyframes growDown {
+  0% {
+    transform: scaleY(0);
+  }
+
+  80% {
+    transform: scaleY(1.1);
+  }
+
+  100% {
+    transform: scaleY(1);
+  }
+}

@@ -1,0 +1,89 @@
+.mainMultiselectContainer {
+  display: flex;
+  flex-direction: column;
+  column-gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+  position: relative;
+}
+
+.mainMultiselect {
+  width: 100%;
+  font-size: small;
+}
+
+.mainMultiselectGrid {
+  width: 100%;
+  font-size: small;
+}
+
+.styleContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.mainStyle {
+  left: 10%;
+  width: 80%;
+  border: var(--matcherEditOptionsBorder, 1px solid rgb(204, 204, 204));
+  border-radius: 4px;
+  padding: 5px;
+}
+
+.styleCode {
+  text-align: left;
+  height: 600px;
+  overflow: auto;
+}
+
+.interestFormContainer {
+  z-index: 50;
+  position: absolute;
+  background: #e6f9ff;
+  border: 1px solid black;
+  border-radius: 4px;
+  padding-bottom: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.interestForm {
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+  font-size: small;
+}
+
+.interestLabel {
+  width: 120px;
+}
+
+.interestLabelShort {
+  width: 20px;
+}
+
+.interestGroup {
+  display: flex;
+  flex-direction: row;
+  column-gap: 4px;
+}
+
+.interestMain input {
+  width: 120px;
+}
+
+.interetTitle {
+  text-align: center;
+  font-size: x-large;
+}
+
+
+.promiseList {
+  height: 300px;
+  width: 300px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: 100px;
+}
