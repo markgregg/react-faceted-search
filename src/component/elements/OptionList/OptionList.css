@@ -90,5 +90,18 @@
 
 .subItemsList {
   position: absolute;
+}
 
+.optionsHelpIcon {
+  font-size: large;
+}
+
+.optionsHelp {
+  display: flex;
+  flex-direction: row;
+  column-gap: 5px;
+}
+
+.optionsHelp:hover {
+  color: darkgray;
 }

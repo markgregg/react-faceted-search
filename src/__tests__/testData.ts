@@ -105,6 +105,20 @@ const testConfig: Config = {
   defaultItemLimit: 10,
 }
 
+const testConfig2: Config = {
+  dataSources: testDataSources,
+  defaultComparison: '=',
+  and: '&',
+  or: '|',
+  comparisons: ['=', '!', '*', '!*', '<*', '>*', '>', '<', '>=', '<=', '!'],
+  comparisonDescriptions: [{ symbol: '=', description: 'equals' }],
+  operators: 'Complex',
+  defaultItemLimit: 10,
+  functions: [{
+    name: 'testfunc'
+  }]
+}
+
 const singleMatcher: Matcher[] = [
   {
     key: 'test',
@@ -198,6 +212,7 @@ export {
   multipleListMatchers,
   matcherAnd,
   testConfig,
+  testConfig2,
   testDataSources,
   openBracket,
   closeBracket,

@@ -3,6 +3,7 @@ import { Option, MutliSelectStyles, Config, Value } from '../../types'
 import { configContext } from '@/component/state/context'
 import { getText, getValue } from '@/component/utils'
 import { FaCaretDown } from "react-icons/fa";
+import { MdOutlineHelpCenter } from "react-icons/md";
 import './OptionList.css'
 
 interface OptionListProps {
@@ -15,6 +16,7 @@ interface OptionListProps {
   onSelectOperator: (op: string) => void
   onSelectComparison: (comp: string) => void
   onSelectText: (option: Option) => void
+  onShowHelp: () => void
 }
 
 interface StaticHeader {
@@ -46,11 +48,13 @@ const OptionList: React.FC<OptionListProps> = ({
   onSelectOperator,
   onSelectComparison,
   onSelectText,
+  onShowHelp,
   styles,
 }) => {
   const [showSubItems, setShowSubItems] = React.useState<string | null>(null)
   const activeItemRef = React.useRef<HTMLLIElement | null>(null)
   const config = React.useContext<Config>(configContext)
+
 
   React.useEffect(() => {
     if (activeItemRef.current && activeItemRef.current.scrollIntoView) {
@@ -129,14 +133,6 @@ const OptionList: React.FC<OptionListProps> = ({
                 items.push({ header: ds.title })
                 items.push(...def.source.map(i => { return { text: getText(i, def), value: getValue(i, def), type: ds.name } }) as StaticItem[])
               }
-            } else {
-              if (lastItem !== ds.title) {
-                items.push({ header: ds.title, type: 'Lookup' })
-              }
-            }
-          } else {
-            if (lastItem !== ds.title) {
-              items.push({ header: ds.title, type: 'Expression' })
             }
           }
           lastItem = ds.title
@@ -145,16 +141,26 @@ const OptionList: React.FC<OptionListProps> = ({
     })
     return <div
       style={{
-        maxHeight: config.maxDropDownHeight ?? 310
+        maxHeight: config.maxDropDownHeight ?? 210
       }}
     >
       <div
         className='optionStaticList'
         style={{
           minHeight: config.minStaticListHeight,
-          maxHeight: config.maxStaticListHeight ?? 300
+          maxHeight: config.maxStaticListHeight ?? 200
         }}
       >
+        <div
+          id="option_help"
+          className='optionsHelp'
+          onClick={() => onShowHelp()}
+        >
+          <MdOutlineHelpCenter
+            className='optionsHelpIcon'
+          />
+          Help
+        </div>
         {
           items.map(item =>
             !('header' in item)

@@ -1,0 +1,46 @@
+.helpMain {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0px;
+  width: calc(100% - 12px);
+  color: var(--matcherEditOptionsColor, black);
+  border-top: var(--matcherEditOptionsBorder, 2px solid gainsboro);
+  border-left: var(--matcherEditOptionsBorder, 2px solid gainsboro);
+  border-bottom: var(--matcherEditOptionsBorder, 2px solid darkgray);
+  border-right: var(--matcherEditOptionsBorder, 2px solid darkgray);
+  border-radius: 4px;
+  animation: growDown 300ms ease-in-out forwards;
+  transform-origin: top center;
+  z-index: 999;
+  background: var(--matcherEditOptionsBackgroundColor, rgb(255, 255, 255));
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  overflow: auto;
+  column-gap: 30px;
+  padding-left: 5px;
+  padding-right: 5px;
+  align-items: center;
+}
+
+.helpGroup {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 4px;
+}
+
+.helpClose {
+  font-size: large;
+}
+
+.helpClose:hover {
+  color: darkgray;
+}
+
+.helpColGroup {
+  display: flex;
+  flex-direction: column;
+}

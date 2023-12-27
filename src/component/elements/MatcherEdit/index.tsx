@@ -7,7 +7,7 @@ import {
 } from '../../state/context'
 import { guid } from '../../utils'
 import OptionList from '../OptionList'
-import MutliSelectStyles from '../../types/ReactFacetedSearchtyles'
+import MutliSelectStyles from '../../types/ReactFacetedSearchStyles'
 import ErrorMessage from '../ErrorMessage'
 import Nemonic from '@/component/types/Nemonic'
 import { FUNC_ID } from '@/component/types/Opton'
@@ -20,6 +20,7 @@ import {
 } from './MatcherEditFunctions'
 import './MatcherEdit.css'
 import { DataSourceLookup, DataSourceValue, PromiseLookup } from '@/component/types/DataSource'
+import Help from '../Help'
 
 interface MatcherEditProps {
   matcher?: Matcher
@@ -84,6 +85,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       React.useState<boolean>(false)
     const controlHasFocus = React.useContext<boolean>(hasFocusContext)
     const selection = React.useContext<Selection>(selectionContext)
+    const [showHelp, setShowHelp] = React.useState<boolean>(false)
 
     const setTextLine = (op: string | null = null, comp: string | null = null, option: Option | null = null, funcName: string | null = null) => {
       let line = ''
@@ -162,7 +164,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       }
       const symbol = searchText[0]
       if (symbol === config.and || symbol === config.or) {
-        setOperator(symbol)
+        setOperator(symbol === config.and ? 'and' : 'or')
         functionState.op = symbol === config.and ? 'and' : 'or'
         return searchText.substring(1).trim()
       }
@@ -372,6 +374,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       setOperator(null)
       setComparison(null)
       setMatchText(null)
+      setShowHelp(false)
 
       if (!notifiedChanging && matcher) {
         setNotifiedChaning(true)
@@ -566,6 +569,16 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       let stopPropagation = false
       setError(null)
       switch (event.code) {
+        case 'Escape':
+          if (showHelp) {
+            setShowHelp(false)
+            stopPropagation = true
+          }
+          break;
+        case 'F1':
+          setShowHelp(true)
+          stopPropagation = true
+          break;
         case 'ArrowLeft':
           stopPropagation = arrowLeft(event)
           break
@@ -710,7 +723,10 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
           type="text"
           placeholder="..."
         />
-        {controlHasFocus && (!matcher || options.length > 0) && (
+        {showHelp &&
+          <Help styles={styles} onClose={() => setShowHelp(false)} />
+        }
+        {controlHasFocus && !showHelp && (!matcher || options.length > 0) && (
           <OptionList
             options={options}
             activeOption={activeOption}
@@ -721,6 +737,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
             onSelectComparison={comp => setTextLine(null, comp)}
             onSelectOperator={op => setTextLine(op)}
             onSelectText={option => setTextLine(null, null, option)}
+            onShowHelp={() => setShowHelp(true)}
           />
         )}
       </div>

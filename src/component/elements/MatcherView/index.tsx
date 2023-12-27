@@ -92,6 +92,7 @@ const MatcherView: React.FC<MatcherViewProps> = ({
   }
 
   const dragMatcher = (event: React.DragEvent<HTMLDivElement>) => {
+
     if ('key' in matcher) {
       event.dataTransfer.setData(
         `${reactFacetedSearchPrefix}${matcher.key}`,
@@ -132,8 +133,7 @@ const MatcherView: React.FC<MatcherViewProps> = ({
       id={'key' in matcher ? matcher.key + '_view' : 'function_view'}
       className="matcherViewMain"
       style={{
-        ...(selected ? styles?.matcherViewSelected : styles?.matcherView),
-        flexGrow: selected ? 1 : 0,
+        ...(selected ? styles?.matcherViewSelected : styles?.matcherView)
       }}
       onClick={onSelect}
       draggable

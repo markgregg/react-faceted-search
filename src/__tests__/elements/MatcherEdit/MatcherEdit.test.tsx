@@ -4,11 +4,7 @@ import {
   configContext,
 } from '../../../component/state/context'
 import {
-  RenderResult,
-  act,
-  fireEvent,
   render,
-  waitFor,
 } from '@testing-library/react'
 import Matcher from '../../../component/types/Matcher'
 import {
@@ -19,271 +15,200 @@ import {
   testDataSources,
 } from '../../testData'
 import { Config } from '@/component/types'
+import { TestHarness, createTestHarness, waitForChange } from '@/__tests__/TestHarness'
 
 describe('MatcherEdit', () => {
   it('basic render with no matcher', () => {
     const result = createMatcherEdit(true)
-    const element = result.container.querySelector('#edit_input')
-    expect(element).toHaveValue('')
+    result.assertElementValue('#edit_input', '')
   })
 
   it('basic render with first matcher', () => {
     const result = createMatcherEdit(true, singleMatcher[0])
-    const element = result.container.querySelector('#test_input')
-    expect(element).toHaveValue('=text')
+    result.assertElementValue('#test_input', '=text')
   })
 
   it('basic render with not first matcher', () => {
     const result = createMatcherEdit(false, singleMatcher[0])
-    const element = result.container.querySelector('#test_input')
-    expect(element).toHaveValue('& =text')
+    result.assertElementValue('#test_input', '& =text')
   })
 
   it.each<[string, string, string]>([
-    ['= a', '&', '='],
-    ['! a', '&', '!'],
-    ['> 1', '&', '>'],
-    ['< 1', '&', '<'],
-    ['>= 1', '&', '>='],
-    ['<= 1', '&', '<='],
-    ['* as', '&', '*'], // will use reg ex - dependent on precedence
-    ['!* as', '&', '!*'],
-    ['& = a', '&', '='],
-    ['& ! a', '&', '!'],
-    ['& > 1', '&', '>'],
-    ['& < 1', '&', '<'],
-    ['& >= 1', '&', '>='],
-    ['& <= 1', '&', '<='],
-    ['& * as', '&', '*'],
-    ['& !* as', '&', '!*'],
-    ['| = a', '|', '='],
-    ['| ! a', '|', '!'],
-    ['| > 1', '|', '>'],
-    ['| < 1', '|', '<'],
-    ['| >= 1', '|', '>='],
-    ['| <= 1', '|', '<='],
-    ['| * as', '|', '*'],
-    ['| !* as', '|', '!*'],
+    ['= a', 'and', '='],
+    ['! a', 'and', '!'],
+    ['> 1', 'and', '>'],
+    ['< 1', 'and', '<'],
+    ['>= 1', 'and', '>='],
+    ['<= 1', 'and', '<='],
+    ['* as', 'and', '*'],
+    ['!* as', 'and', '!*'],
+    ['& = a', 'and', '='],
+    ['& ! a', 'and', '!'],
+    ['& > 1', 'and', '>'],
+    ['& < 1', 'and', '<'],
+    ['& >= 1', 'and', '>='],
+    ['& <= 1', 'and', '<='],
+    ['& * as', 'and', '*'],
+    ['& !* as', 'and', '!*'],
+    ['| = a', 'or', '='],
+    ['| ! a', 'or', '!'],
+    ['| > 1', 'or', '>'],
+    ['| < 1', 'or', '<'],
+    ['| >= 1', 'or', '>='],
+    ['| <= 1', 'or', '<='],
+    ['| * as', 'or', '*'],
+    ['| !* as', 'or', '!*'],
   ])('For symbol %p and operator %p', (val, operator, comparison) => {
-    let matcher: Matcher | null | undefined
-    const result = createMatcherEdit(false, undefined, {
-      onMatcherChanged: (m) => {
-        matcher = m
-        return true
-      },
-    })
-    const input = result.container.querySelector('#edit_input')
-    expect(input).toBeDefined()
-    input && act(() => fireEvent.change(input, { target: { value: val } }))
-    input && fireEvent.keyDown(input, { code: 'Enter' })
-    expect(matcher?.comparison).toBe(comparison)
-    expect(matcher?.operator).toBe(operator)
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: val } })
+    result.fireKeyDown('#edit_input', { code: 'Enter' })
+    expect(managedMatcher?.comparison).toBe(comparison)
+    expect(managedMatcher?.operator).toBe(operator)
+  })
+
+  it('test insert', async () => {
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: 'loa' } })
+    result.fireKeyDown('#edit_input', { code: 'PageDown' })
+    result.fireKeyDown('#edit_input', { code: 'Enter', shiftKey: true })
+    expect(isInsertMatcher).toBe(true)
   })
 
   it('test pg up', async () => {
-    let matcher: Matcher | null | undefined
-    const result = createMatcherEdit(false, undefined, {
-
-      onMatcherChanged: (m) => {
-        matcher = m
-        return true
-      },
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: 'loa' } })
+    await waitForChange(() => expect(result.getByText('loadxx') !== null).toBeTruthy(), () => {
+      const opt = result.getByText('loadxx')
+      expect(opt.textContent).toBe('loadxx')
     })
-    const input = result.container.querySelector('#edit_input')
-    expect(input).toBeDefined()
-    input && act(() => fireEvent.change(input, { target: { value: 'loa' } }))
-    await waitForOption(result, 'loadxx')
-    input && fireEvent.keyDown(input, { code: 'PageUp' })
-    input && fireEvent.keyDown(input, { code: 'Enter' })
-    expect(matcher?.text).toBe('loadxx')
+    result.fireKeyDown('#edit_input', { code: 'PageUp' })
+    result.fireKeyDown('#edit_input', { code: 'Enter' })
+    expect(managedMatcher?.text).toBe('loadxx')
   })
 
   it('test pg down', async () => {
-    let matcher: Matcher | null | undefined
-    const result = createMatcherEdit(false, undefined, {
-
-      onMatcherChanged: (m) => {
-        matcher = m
-        return true
-      },
-    })
-    const input = result.container.querySelector('#edit_input')
-    expect(input).toBeDefined()
-    input && act(() => fireEvent.change(input, { target: { value: 'loa' } }))
-    await waitForOption(result, 'loadxx')
-    input && fireEvent.keyDown(input, { code: 'PageDown' })
-    input && fireEvent.keyDown(input, { code: 'Enter' })
-    expect(matcher?.text).toBe('loadsp')
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: 'loa' } })
+    result.fireKeyDown('#edit_input', { code: 'PageDown' })
+    result.fireKeyDown('#edit_input', { code: 'Enter' })
+    expect(managedMatcher?.text).toBe('loadsp')
   })
 
   it('test end', async () => {
-    let matcher: Matcher | null | undefined
-    const result = createMatcherEdit(false, undefined, {
-
-      onMatcherChanged: (m) => {
-        matcher = m
-        return true
-      },
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: 'loa' } })
+    await waitForChange(() => expect(result.getByText('loadxx')).toBeDefined(), () => {
+      const opt = result.getByText('loadxx')
+      expect(opt.textContent).toBe('loadxx')
     })
-    const input = result.container.querySelector('#edit_input')
-    expect(input).toBeDefined()
-    input && act(() => fireEvent.change(input, { target: { value: 'loa' } }))
-    await waitForOption(result, 'loadxx')
-    input && fireEvent.keyDown(input, { code: 'End' })
-    input && fireEvent.keyDown(input, { code: 'Enter' })
-    expect(matcher?.text).toBe('loadxx')
+    result.fireKeyDown('#edit_input', { code: 'End' })
+    result.fireKeyDown('#edit_input', { code: 'Enter' })
+    expect(managedMatcher?.text).toBe('loadxx')
   })
 
   it('test home', async () => {
-    let matcher: Matcher | null | undefined
-    const result = createMatcherEdit(false, undefined, {
-
-      onMatcherChanged: (m) => {
-        matcher = m
-        return true
-      },
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: 'loa' } })
+    await waitForChange(() => expect(result.getByText('loadxx') !== null).toBeTruthy(), () => {
+      const opt = result.getByText('loadxx')
+      expect(opt.textContent).toBe('loadxx')
     })
-    const input = result.container.querySelector('#edit_input')
-    expect(input).toBeDefined()
-    input && act(() => fireEvent.change(input, { target: { value: 'loa' } }))
-    await waitForOption(result, 'loadxx')
-    input && fireEvent.keyDown(input, { code: 'Home' })
-    input && fireEvent.keyDown(input, { code: 'Enter' })
-    expect(matcher?.text).toBe('loa')
+    result.fireKeyDown('#edit_input', { code: 'Home' })
+    result.fireKeyDown('#edit_input', { code: 'Enter' })
+    expect(managedMatcher?.text).toBe('loa')
   })
 
   it('test arrow up', async () => {
-    let matcher: Matcher | null | undefined
-    const result = createMatcherEdit(false, undefined, {
-
-      onMatcherChanged: (m) => {
-        matcher = m
-        return true
-      },
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: 'loa' } })
+    await waitForChange(() => expect(result.getByText('loadxx') !== null).toBeTruthy(), () => {
+      const opt = result.getByText('loadxx')
+      expect(opt.textContent).toBe('loadxx')
     })
-    const input = result.container.querySelector('#edit_input')
-    expect(input).toBeDefined()
-    input && act(() => fireEvent.change(input, { target: { value: 'loa' } }))
-    await waitForOption(result, 'loadxx')
-    input && fireEvent.keyDown(input, { code: 'ArrowUp' })
-    input && fireEvent.keyDown(input, { code: 'Enter' })
-    expect(matcher?.text).toBe('loadxx')
+    result.fireKeyDown('#edit_input', { code: 'ArrowUp' })
+    result.fireKeyDown('#edit_input', { code: 'Enter' })
+    expect(managedMatcher?.text).toBe('loadxx')
   })
 
   it('test arrow down', async () => {
-    let matcher: Matcher | null | undefined
-    const result = createMatcherEdit(false, undefined, {
-
-      onMatcherChanged: (m) => {
-        matcher = m
-        return true
-      },
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: 'loa' } })
+    await waitForChange(() => expect(result.getByText('loadxx') !== null).toBeTruthy(), () => {
+      const opt = result.getByText('loadxx')
+      expect(opt.textContent).toBe('loadxx')
     })
-    const input = result.container.querySelector('#edit_input')
-    expect(input).toBeDefined()
-    input && act(() => fireEvent.change(input, { target: { value: 'loa' } }))
-    await waitForOption(result, 'loadxx')
-    input && fireEvent.keyDown(input, { code: 'ArrowDown' })
-    input && fireEvent.keyDown(input, { code: 'Enter' })
-    expect(matcher?.text).toBe('loadsp')
+    result.fireKeyDown('#edit_input', { code: 'ArrowDown' })
+    result.fireKeyDown('#edit_input', { code: 'Enter' })
+    expect(managedMatcher?.text).toBe('loadsp')
   })
 
   it('Cancel Edit', async () => {
-    let cancelled = false
-    const result = createMatcherEdit(true, singleMatcher[0], {
-      isActive: true,
-      onCancel: () => (cancelled = true),
+    const result = createMatcherEdit(false, singleMatcher[0], {
+      isActive: true
     })
-    const element = result.container.querySelector('#test_input')
-    expect(element).toBeDefined()
-    element && fireEvent.keyDown(element, { code: 'Enter' })
-    expect(cancelled).toBeTruthy()
+    result.fireKeyDown('#test_input', { code: 'Enter' })
+    expect(isCancelled).toBeTruthy()
   })
 
   it('Edit Previous', async () => {
-    let editPrevious = false
     const result = createMatcherEdit(true, singleMatcher[0], {
-      isActive: true,
-      onEditPrevious: () => (editPrevious = true),
+      isActive: true
     })
-    const element = result.container.querySelector('#test_input')
-    expect(element).toBeDefined()
-    element && fireEvent.change(element, { target: { value: '' } })
-    element && fireEvent.keyDown(element, { code: 'Backspace' })
-    expect(editPrevious).toBeTruthy()
+    result.fireChange('#test_input', { target: { value: '' } })
+    result.fireKeyDown('#test_input', { code: 'Backspace' })
+    expect(isEditPrevious).toBeTruthy()
   })
 
   it('Arrow Edit Previous', async () => {
-    let editPrevious = false
     const result = createMatcherEdit(true, singleMatcher[0], {
-      isActive: true,
-      onEditPrevious: () => (editPrevious = true),
+      isActive: true
     })
-    const element = result.container.querySelector('#test_input')
-    expect(element).toBeDefined()
-    element && fireEvent.change(element, { target: { value: '' } })
-    element && fireEvent.keyDown(element, { code: 'ArrowLeft' })
-    expect(editPrevious).toBeTruthy()
+    result.fireChange('#test_input', { target: { value: '' } })
+    result.fireKeyDown('#test_input', { code: 'ArrowLeft' })
+    expect(isEditPrevious).toBeTruthy()
   })
 
   it('Arrow Edit Next', async () => {
-    let editNext = false
     const result = createMatcherEdit(true, singleMatcher[0], {
-      isActive: true,
-      onEditNext: () => (editNext = true),
+      isActive: true
     })
-    const element = result.container.querySelector('#test_input')
-    expect(element).toBeDefined()
-    element && fireEvent.keyDown(element, { code: 'ArrowRight' })
-    expect(editNext).toBeTruthy()
+    result.fireChange('#test_input', { target: { value: '' } })
+    result.fireKeyDown('#test_input', { code: 'ArrowRight' })
+    expect(isEditNext).toBeTruthy()
   })
 
   it('onFocus', () => {
-    let hasFocus = false
-    const result = createMatcherEdit(true, undefined, {
-      onFocus: () => (hasFocus = true),
+    const result = createMatcherEdit(true, singleMatcher[0], {
+      isActive: true
     })
-    const element = result.container.querySelector('#edit_input')
-    expect(element).toBeDefined()
-    element && fireEvent.focus(element)
-    expect(hasFocus).toBeTruthy()
+    result.fireFocus('#test_input')
+    expect(isFocused).toBeTruthy()
   })
 
   it('test old promises ignored ', async () => {
-    let matcher: Matcher | null | undefined
-    const result = createMatcherEdit(false, undefined, {
-
-      onMatcherChanged: (m) => {
-        matcher = m
-        return true
-      },
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: 'lo' } })
+    result.fireChange('#edit_input', { target: { value: 'loa' } })
+    await waitForChange(() => expect(result.getByText('loadxx') !== null).toBeTruthy(), () => {
+      const opt = result.getByText('loadxx')
+      expect(opt.textContent).toBe('loadxx')
     })
-    const input = result.container.querySelector('#edit_input')
-    expect(input).toBeDefined()
-    input && act(() => fireEvent.change(input, { target: { value: 'lo' } }))
-    input && act(() => fireEvent.change(input, { target: { value: 'loa' } }))
-    await waitForOption(result, 'loadxx')
     expect(() => result.getByText('aploked')).toThrowError()
-    input && fireEvent.keyDown(input, { code: 'ArrowUp' })
-    input && fireEvent.keyDown(input, { code: 'Enter' })
-    expect(matcher?.text).toBe('loadxx')
+    result.fireKeyDown('#edit_input', { code: 'ArrowUp' })
+    result.fireKeyDown('#edit_input', { code: 'Enter' })
+    expect(managedMatcher?.text).toBe('loadxx')
   })
 
-  it('test old promises ignored ', async () => {
-    const result = createMatcherEdit(false, undefined, {
-
-    })
-    const input = result.container.querySelector('#edit_input')
-    expect(input).toBeDefined()
-    input && act(() => fireEvent.change(input, { target: { value: '>asdas' } }))
-    input && fireEvent.keyDown(input, { code: 'Enter' })
+  it('test validation error', async () => {
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: '>asdas' } })
+    result.fireKeyDown('#edit_input', { code: 'Enter' })
     const txt = result.getByText(`Compairson (>) isn't valid for regex.`)
     expect(txt).toHaveTextContent(`Compairson (>) isn't valid for regex.`)
   })
 
   it('test simple operations', async () => {
     const result = createMatcherEdit(false, singleMatcher[0], {
-
       config: {
         dataSources: testDataSources,
         defaultComparison: '=',
@@ -307,13 +232,12 @@ describe('MatcherEdit', () => {
         defaultItemLimit: 10,
       },
     })
-    const input = result.container.querySelector('#test_input')
+    const input = result.getElement('#test_input')
     expect(input).toHaveValue('=text')
   })
 
   it('test open bracket', async () => {
     const result = createMatcherEdit(false, openBracket, {
-
       config: {
         dataSources: testDataSources,
         defaultComparison: '=',
@@ -337,13 +261,12 @@ describe('MatcherEdit', () => {
         defaultItemLimit: 10,
       },
     })
-    const input = result.container.querySelector('#test_input')
+    const input = result.getElement('#test_input')
     expect(input).toHaveValue('(')
   })
 
   it('test close bracket', async () => {
     const result = createMatcherEdit(false, closeBracket, {
-
       config: {
         dataSources: testDataSources,
         defaultComparison: '=',
@@ -367,86 +290,70 @@ describe('MatcherEdit', () => {
         defaultItemLimit: 10,
       },
     })
-    const input = result.container.querySelector('#test_input')
+    const input = result.getElement('#test_input')
     expect(input).toHaveValue(')')
   })
 
   it('enter test open bracket', async () => {
-    let matcher: Matcher | null | undefined
-    const result = createMatcherEdit(false, undefined, {
-
-      onMatcherChanged: (m) => {
-        matcher = m
-        return true
-      },
-    })
-    const input = result.container.querySelector('#edit_input')
-    expect(input).toBeDefined()
-    input && act(() => fireEvent.change(input, { target: { value: '(' } }))
-    expect(matcher?.comparison).toBe('(')
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: '(' } })
+    expect(managedMatcher?.comparison).toBe('(')
   })
 
   it('enter test close bracket', async () => {
-    let matcher: Matcher | null | undefined
-    const result = createMatcherEdit(false, undefined, {
-
-      onMatcherChanged: (m) => {
-        matcher = m
-        return true
-      },
-    })
-    const input = result.container.querySelector('#edit_input')
-    expect(input).toBeDefined()
-    input && act(() => fireEvent.change(input, { target: { value: ')' } }))
-    expect(matcher?.comparison).toBe(')')
+    const result = createMatcherEdit(false, undefined)
+    result.fireChange('#edit_input', { target: { value: ')' } })
+    expect(managedMatcher?.comparison).toBe(')')
   })
 })
 
+let managedMatcher: Matcher | null | undefined
+let isCancelled = false
+let isFocused = false
+let isEditPrevious = false
+let isEditNext = false
+let isInsertMatcher = false
+let validateReturn: string | null = null
+console.log(isInsertMatcher)
 const createMatcherEdit = (
   first = false,
   matcher?: Matcher,
   options?: {
     isActive?: boolean
-    onMatcherChanged?: (matcher: Matcher | null) => boolean
-    onValidate?: (matcer: Matcher) => string | null
-    onFocus?: () => void
-    onCancel?: () => void
-    onEditPrevious?: () => void
-    onEditNext?: () => void
     config?: Config
   },
-) => {
-  return render(
-    <hasFocusContext.Provider value={true}>
-      <configContext.Provider value={options?.config ?? testConfig}>
-        <MatcherEdit
-          matcher={matcher}
-          onMatcherChanged={
-            options?.onMatcherChanged ??
-            ((m) => {
-              console.log(m)
+): TestHarness => {
+  return createTestHarness(
+    render(
+      <hasFocusContext.Provider value={true}>
+        <configContext.Provider value={options?.config ?? testConfig}>
+          <MatcherEdit
+            matcher={matcher}
+            onMatcherChanged={m => {
+              managedMatcher = m
               return true
-            })
-          }
-          onValidate={options?.onValidate ?? (() => null)}
-          onFocus={options?.onFocus}
-          onCancel={options?.onCancel}
-          onEditPrevious={
-            options?.onEditPrevious ?? (() => console.log('prev'))
-          }
-          onEditNext={options?.onEditNext ?? (() => console.log('prev'))}
-          onInsertMatcher={() => console.log('prev')}
-          first={first}
-        />
-      </configContext.Provider>
-    </hasFocusContext.Provider>,
+            }}
+            onValidate={() => validateReturn
+            }
+            onFocus={() =>
+              isFocused = true
+            }
+            onCancel={() =>
+              isCancelled = true
+            }
+            onEditPrevious={() =>
+              isEditPrevious = true
+            }
+            onEditNext={() => {
+              isEditNext = true
+            }}
+            onInsertMatcher={() =>
+              isInsertMatcher = true
+            }
+            first={first}
+          />
+        </configContext.Provider>
+      </hasFocusContext.Provider>,
+    )
   )
-}
-
-const waitForOption = async (result: RenderResult, optText: string) => {
-  await waitFor(() => expect(result.getByText(optText)).toBeDefined(), {
-    timeout: 1000,
-  })
-  const opt = result.getByText(optText)
-  expect(opt.textContent).toBe(optText)
 }

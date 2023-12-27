@@ -478,7 +478,7 @@ const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
         </div>
         <div className='promiseList'>
           {
-            promiseCalls.map(p => <div key={p}>{p}</div>)
+            promiseCalls.map(p => <div>{p}</div>)
           }
         </div>
       </div>

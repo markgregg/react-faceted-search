@@ -1,6 +1,11 @@
+import { TestHarness, createTestHarness } from '@/__tests__/TestHarness'
 import OptionList from '../../../component/elements/OptionList'
 import Option from '../../../component/types/Opton'
-import { fireEvent, render } from '@testing-library/react'
+import {
+  configContext,
+} from '../../../component/state/context'
+import { render } from '@testing-library/react'
+import { testConfig2 } from '@/__tests__/testData'
 
 const options: [string, Option[]][] = [
   [
@@ -21,9 +26,11 @@ const options: [string, Option[]][] = [
 ]
 
 describe('OptionList', () => {
+
+
   it('basic render, no active option', () => {
-    const result = createOptionList()
-    const list = result.container.querySelectorAll('li')
+    const result = createOptionList(options)
+    const list = result.getElements<HTMLLIElement>('li')
     expect(list.length).toBe(3)
     checkClassText(list, 0, 'test', 'c')
     checkClassText(list, 1, 'text')
@@ -31,8 +38,8 @@ describe('OptionList', () => {
   })
 
   it('basic render, with active option', () => {
-    const result = createOptionList(0)
-    const list = result.container.querySelectorAll('li')
+    const result = createOptionList(options, 0)
+    const list = result.getElements<HTMLLIElement>('li')
     expect(list.length).toBe(3)
     checkClassText(list, 0, 'test', 'c')
     checkClassText(list, 1, 'text', 'a')
@@ -40,42 +47,47 @@ describe('OptionList', () => {
   })
 
   it('select active option', () => {
-    let selectedOpt: Option | null = null
-    const result = createOptionList(0, (o) => (selectedOpt = o))
-    const opt = result.getByText('text2')
-    fireEvent.click(opt)
+    const result = createOptionList(options, 0)
+    result.fireClick('text2', true)
     expect(selectedOpt).toBe(options[0][1][1])
   })
 
   it('Hover over active option', () => {
-    let activeOpt: number | null = null
-    const result = createOptionList(0, undefined, (o) => (activeOpt = o))
-    const opt = result.getByText('text2')
-    fireEvent.mouseEnter(opt)
+    const result = createOptionList(options, 0)
+    result.fireMouseEnter('text2', true)
     expect(activeOpt).toBe(1)
   })
-})
 
-const createOptionList = (
-  activeOption: number | null = null,
-  onSelectOption?: (option: Option) => void,
-  onActiveOption?: (index: number) => void,
-) => {
-  return render(
-    <OptionList
-      options={options}
-      activeOption={activeOption}
-      onSelectOption={onSelectOption ? onSelectOption : (o) => console.log(o)}
-      onSelectActiveOption={
-        onActiveOption ? onActiveOption : (i) => console.log(i)
-      }
-      onSelectFunction={() => console.log('comp')}
-      onSelectComparison={() => console.log('comp')}
-      onSelectOperator={() => console.log('op')}
-      onSelectText={() => console.log('text')}
-    />,
-  )
-}
+  it('select help', () => {
+    const result = createOptionList([])
+    result.fireClick('#option_help')
+    expect(showHelp).toBeTruthy()
+  })
+
+  it('select function', () => {
+    const result = createOptionList([])
+    result.fireClick('testfunc', true)
+    expect(selectFunction).toBe('testfunc')
+  })
+
+  it('select operator', () => {
+    const result = createOptionList([])
+    result.fireClick('And', true)
+    expect(selectOperator).toBe('and')
+  })
+
+  it('select comp', () => {
+    const result = createOptionList([])
+    result.fireClick('equals', true)
+    expect(selectComparison).toBe('=')
+  })
+
+  it('select static option', () => {
+    const result = createOptionList([])
+    result.fireClick('loadsp', true)
+    expect(selectText).toStrictEqual({ "source": "list", "text": "loadsp", "value": "loadsp" })
+  })
+})
 
 const checkClassText = (
   list: NodeListOf<HTMLLIElement>,
@@ -92,3 +104,33 @@ const checkClassText = (
         : 'optionListOption optionListActiveOption',
   )
 }
+
+let selectedOpt: Option | null = null
+let activeOpt: number | null = null
+let selectFunction: string | null = null
+let selectComparison: string | null = null
+let selectOperator: string | null = null
+let selectText: Option | null = null
+let showHelp = false
+
+const createOptionList = (
+  options: [string, Option[]][],
+  activeOption: number | null = null
+): TestHarness => {
+  return createTestHarness(render(
+    <configContext.Provider value={testConfig2}>
+      <OptionList
+        options={options}
+        activeOption={activeOption}
+        onSelectOption={(o) => (selectedOpt = o)}
+        onSelectActiveOption={(o) => (activeOpt = o)}
+        onSelectFunction={f => selectFunction = f}
+        onSelectComparison={c => selectComparison = c}
+        onSelectOperator={o => selectOperator = o}
+        onSelectText={t => selectText = t}
+        onShowHelp={() => showHelp = true}
+      />
+    </configContext.Provider>,
+  ))
+}
+

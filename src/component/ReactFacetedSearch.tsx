@@ -174,8 +174,10 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   }
 
   const editFocus = () => {
-    clearActiveMatcher()
-    setHasFocus(true)
+    if (!hasFocus) {
+      clearActiveMatcher()
+      setHasFocus(true)
+    }
   }
 
   const notifyMatchersChanged = (matchers: Matcher[]) => {
@@ -291,8 +293,10 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   const selectMatcher = (index: number) => {
     if (!hasFocus) {
       setHasFocus(true)
+      setTimeout(() => setActiveMatcher(index), 1)
+    } else {
+      setActiveMatcher(index)
     }
-    setActiveMatcher(index)
   }
 
   const swapMatchers = (matcher: Matcher, swapMatcher: Matcher) => {
