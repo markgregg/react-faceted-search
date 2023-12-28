@@ -26,7 +26,6 @@ describe('MatcherView', () => {
 
   it('basic render selected', () => {
     const result = createMatcherView(matcherAnd, false, { selected: true })
-    result.logDom()
     result.assertElementValue('#test_input', '& =text')
   })
 
@@ -62,7 +61,6 @@ describe('MatcherView', () => {
     const result = createMatcherView(matcherAnd, false, {
       selected: true
     })
-    result.logDom()
     result.fireChange('#test_input', { target: { value: 'a' } })
     expect(isChanging).toBeTruthy()
     result.fireKeyDown('#test_input', { code: 'Enter' })
@@ -130,7 +128,6 @@ describe('MatcherView', () => {
       selected: true
     })
     const element = result.getElement('#test_input')
-    result.logDom()
     expect(element).toBeDefined()
     const ret = element && fireDragStart(element)
     expect(ret?.[0]).toBe('multi-select/matcher/test')
@@ -143,7 +140,6 @@ describe('MatcherView', () => {
       selected: true
     })
     const element = result.getElement('#test_input')
-    result.logDom()
     expect(element).toBeDefined()
     const ret = element && fireDragOver(element, 'multi-select/matcher/xxx', openBracket)
     expect(ret).toBe('move')
@@ -154,7 +150,6 @@ describe('MatcherView', () => {
       selected: true
     })
     const element = result.getElement('#test_input')
-    result.logDom()
     expect(element).toBeDefined()
     element && fireDrop(element, 'multi-select/matcher/xxx', openBracket)
     expect(isSwapped).toBeTruthy()

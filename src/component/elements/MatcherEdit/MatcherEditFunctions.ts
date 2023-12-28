@@ -7,6 +7,11 @@ import { getText, getValue } from '@/component/utils'
 
 export const FUNCTIONS_TEXT = 'Functions'
 
+export interface FunctionState {
+  allOptions: [string, Option[]][]
+  op: 'or' | 'and' | null
+}
+
 const limitOptions = (
   dsl: DataSourceLookup,
   options: Option[],
@@ -47,6 +52,31 @@ export const mapOptions = (
     }
   })
 }
+
+export const addOptionsPlaceholder = (
+  ds: DataSource,
+  dsl: DataSourceLookup,
+  allOptions: [string, Option[]][],
+  defaultItemLimit: number,
+  dataSources: DataSource[]
+) => {
+  if (!allOptions.find(opt => opt[0] === ds.title && opt[1].length > 0)) {
+    addOptions(allOptions, ds, dsl, [], defaultItemLimit, dataSources)
+  }
+}
+
+export const removeOptionsPlaceholder = (
+  ds: DataSource,
+  allOptions: [string, Option[]][]
+) => {
+  const index = allOptions.findIndex(opt => opt[0] === ds.title && opt[1].length === 0)
+  if (index !== -1) {
+    allOptions.splice(index, 1)
+    return true
+  }
+  return false
+}
+
 
 export const updateOptions = (
   items: SourceItem[],

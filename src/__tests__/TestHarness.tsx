@@ -3,7 +3,7 @@ import {
   act,
   fireEvent,
   prettyDOM,
-  waitFor
+  waitFor,
 } from '@testing-library/react'
 
 export interface TestHarness {
@@ -97,9 +97,18 @@ export const createTestHarness = (
   }
 }
 
-export const waitForChange = async (callback: () => void, validateCallbackResult: () => void): Promise<void> => {
-  await waitFor(() => callback(), {
+const getElementByText = (harness: TestHarness, text: string) => {
+  try {
+    return harness.getByText(text)
+  } catch (e) {
+    return null
+  }
+}
+
+export const waitForElement = async (harness: TestHarness, id: string): Promise<void> => {
+  await waitFor(() => getElementByText(harness, id), {
     timeout: 1000
   })
-  validateCallbackResult();
 }
+
+export const delay = (ms: number) => act(() => new Promise(res => setTimeout(res, ms)));

@@ -15,7 +15,7 @@ import {
   testDataSources,
 } from '../../testData'
 import { Config } from '@/component/types'
-import { TestHarness, createTestHarness, waitForChange } from '@/__tests__/TestHarness'
+import { TestHarness, createTestHarness, delay } from '@/__tests__/TestHarness'
 
 describe('MatcherEdit', () => {
   it('basic render with no matcher', () => {
@@ -77,10 +77,7 @@ describe('MatcherEdit', () => {
   it('test pg up', async () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await waitForChange(() => expect(result.getByText('loadxx') !== null).toBeTruthy(), () => {
-      const opt = result.getByText('loadxx')
-      expect(opt.textContent).toBe('loadxx')
-    })
+    await delay(1000)
     result.fireKeyDown('#edit_input', { code: 'PageUp' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
     expect(managedMatcher?.text).toBe('loadxx')
@@ -97,10 +94,7 @@ describe('MatcherEdit', () => {
   it('test end', async () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await waitForChange(() => expect(result.getByText('loadxx')).toBeDefined(), () => {
-      const opt = result.getByText('loadxx')
-      expect(opt.textContent).toBe('loadxx')
-    })
+    await delay(1000)
     result.fireKeyDown('#edit_input', { code: 'End' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
     expect(managedMatcher?.text).toBe('loadxx')
@@ -109,10 +103,7 @@ describe('MatcherEdit', () => {
   it('test home', async () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await waitForChange(() => expect(result.getByText('loadxx') !== null).toBeTruthy(), () => {
-      const opt = result.getByText('loadxx')
-      expect(opt.textContent).toBe('loadxx')
-    })
+    await delay(1000)
     result.fireKeyDown('#edit_input', { code: 'Home' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
     expect(managedMatcher?.text).toBe('loa')
@@ -121,10 +112,7 @@ describe('MatcherEdit', () => {
   it('test arrow up', async () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await waitForChange(() => expect(result.getByText('loadxx') !== null).toBeTruthy(), () => {
-      const opt = result.getByText('loadxx')
-      expect(opt.textContent).toBe('loadxx')
-    })
+    await delay(1000)
     result.fireKeyDown('#edit_input', { code: 'ArrowUp' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
     expect(managedMatcher?.text).toBe('loadxx')
@@ -133,10 +121,7 @@ describe('MatcherEdit', () => {
   it('test arrow down', async () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await waitForChange(() => expect(result.getByText('loadxx') !== null).toBeTruthy(), () => {
-      const opt = result.getByText('loadxx')
-      expect(opt.textContent).toBe('loadxx')
-    })
+    await delay(1000)
     result.fireKeyDown('#edit_input', { code: 'ArrowDown' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
     expect(managedMatcher?.text).toBe('loadsp')
@@ -189,10 +174,8 @@ describe('MatcherEdit', () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'lo' } })
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await waitForChange(() => expect(result.getByText('loadxx') !== null).toBeTruthy(), () => {
-      const opt = result.getByText('loadxx')
-      expect(opt.textContent).toBe('loadxx')
-    })
+    await delay(1000)
+    result.logDom()
     expect(() => result.getByText('aploked')).toThrowError()
     result.fireKeyDown('#edit_input', { code: 'ArrowUp' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
@@ -314,7 +297,7 @@ let isEditPrevious = false
 let isEditNext = false
 let isInsertMatcher = false
 let validateReturn: string | null = null
-console.log(isInsertMatcher)
+
 const createMatcherEdit = (
   first = false,
   matcher?: Matcher,

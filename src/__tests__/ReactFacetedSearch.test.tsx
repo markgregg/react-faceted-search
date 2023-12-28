@@ -8,7 +8,7 @@ import {
   multipleMatchers,
   singleMatcher,
 } from './testData'
-import { TestHarness, createTestHarness, waitForChange } from './TestHarness'
+import { TestHarness, createTestHarness, delay } from './TestHarness'
 
 const simpleDataSource: DataSource[] = [
   {
@@ -182,10 +182,7 @@ describe('ReactFacetedSearch', () => {
     })
     result.fireChange('#test_input', { target: { value: 'a' } })
     result.fireKeyDown('#test_input', { code: 'Enter' })
-    await waitForChange(
-      () => expect(result.getElement('#test_label') !== null).toBeTruthy(),
-      () => { }
-    )
+    await delay(1000)
     result.assertElementText('#test_label', '= asdas')
   })
 

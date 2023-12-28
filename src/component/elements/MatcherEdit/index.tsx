@@ -13,9 +13,12 @@ import Nemonic from '@/component/types/Nemonic'
 import { FUNC_ID } from '@/component/types/Opton'
 import {
   FUNCTIONS_TEXT,
+  FunctionState,
+  addOptionsPlaceholder,
   getCategoryIndex,
   insertOptions,
   matchItems,
+  removeOptionsPlaceholder,
   updateOptions,
 } from './MatcherEditFunctions'
 import './MatcherEdit.css'
@@ -38,6 +41,7 @@ interface MatcherEditProps {
   allowFreeText?: boolean
   styles?: ReactFacetedSearchStyles
 }
+
 
 const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
   (props, ref) => {
@@ -205,11 +209,6 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       return searchText
     }
 
-    interface FunctionState {
-      allOptions: [string, Option[]][]
-      op: 'or' | 'and' | null
-    }
-
     const buildOptions = (
       newText: string,
       currentKey: string,
@@ -307,18 +306,35 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
           const promise = dsl.source as PromiseLookup
           setTimeout(() => {
             if (currentKey === key.current) {
+              addOptionsPlaceholder(
+                ds,
+                dsl,
+                functionState.allOptions,
+                config.defaultItemLimit,
+                config.dataSources
+              )
+              updateState(functionState)
               promise(searchText, functionState.op, selection.matchers)
                 .then((items) => {
                   if (currentKey === key.current) {
-                    updateOptions(
-                      items,
-                      ds,
-                      dsl,
-                      functionState.allOptions,
-                      config.defaultItemLimit,
-                      config.dataSources,
-                    )
-                    updateState(functionState)
+                    if (items.length > 0) {
+                      updateOptions(
+                        items,
+                        ds,
+                        dsl,
+                        functionState.allOptions,
+                        config.defaultItemLimit,
+                        config.dataSources,
+                      )
+                      updateState(functionState)
+                    } else {
+                      if (removeOptionsPlaceholder(
+                        ds,
+                        functionState.allOptions
+                      )) {
+                        updateState(functionState)
+                      }
+                    }
                   }
                 })
             }
@@ -380,7 +396,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       key.current = currentKey
       const functionState: FunctionState = {
         allOptions: [],
-        op: null,
+        op: null
       }
       buildOptions(newText, currentKey, functionState)
       setText(newText)
@@ -391,7 +407,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       const { allOptions } = functionState
       setOptions(allOptions)
       let totalCount = 0
-      allOptions.forEach(op => totalCount += op[1].length)
+      allOptions.forEach(op => totalCount += (op[1].length === 0 ? 1 : op[1].length))
       setTotalOptions(totalCount)
       if (totalCount > 0) {
         if (activeOption === null) {

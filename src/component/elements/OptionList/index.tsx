@@ -95,6 +95,15 @@ const OptionList: React.FC<OptionListProps> = ({
                 : ''
             }</i>
           </li>
+          {
+            categoryOptions.length === 0 &&
+            <li
+              className='optionListOption'
+              style={styles?.option}
+            >
+              Loading
+            </li>
+          }
           {categoryOptions.map((option) => {
             const idx = cnt++
             return (

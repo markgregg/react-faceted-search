@@ -451,7 +451,7 @@ const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
         ],
       },
     ],
-    [findItems, findItem],
+    [findItems, findItem, options],
   )
 
 
