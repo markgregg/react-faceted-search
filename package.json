@@ -1,7 +1,7 @@
 {
   "name": "react-faceted-search",
   "version": "0.0.1",
-  "description": "Multi-source select control",
+  "description": "Multi-faceted search control",
   "keywords": [
     "react",
     "faceted",

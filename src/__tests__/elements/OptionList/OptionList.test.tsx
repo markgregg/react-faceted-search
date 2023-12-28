@@ -105,7 +105,6 @@ let selectFunction: string | null = null
 let selectComparison: string | null = null
 let selectOperator: string | null = null
 let selectText: Option | null = null
-let showHelp = false
 
 const createOptionList = (
   options: [string, Option[]][],
