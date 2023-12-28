@@ -167,7 +167,7 @@ The following components can be styled
 - atcherToolTip
 - matcherEdit
 - input
-- mutliSelect
+- reactFacetedSearch
 - errorMessage
 
 ### Style structure
@@ -182,7 +182,7 @@ The following components can be styled
   matcherToolTip?: React.CSSProperties
   matcherEdit?: React.CSSProperties
   input?: React.CSSProperties
-  mutliSelect?: React.CSSProperties
+  reactFacetedSearch?: React.CSSProperties
   errorMessage?: React.CSSProperties
 }
 ```

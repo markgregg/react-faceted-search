@@ -58,12 +58,6 @@ describe('OptionList', () => {
     expect(activeOpt).toBe(1)
   })
 
-  it('select help', () => {
-    const result = createOptionList([])
-    result.fireClick('#option_help')
-    expect(showHelp).toBeTruthy()
-  })
-
   it('select function', () => {
     const result = createOptionList([])
     result.fireClick('testfunc', true)
@@ -128,7 +122,6 @@ const createOptionList = (
         onSelectComparison={c => selectComparison = c}
         onSelectOperator={o => selectOperator = o}
         onSelectText={t => selectText = t}
-        onShowHelp={() => showHelp = true}
       />
     </configContext.Provider>,
   ))

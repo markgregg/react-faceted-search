@@ -1,4 +1,4 @@
-export default interface MutliSelectStyles {
+export default interface ReactFacetedSearchStyles {
   optionsList?: React.CSSProperties
   option?: React.CSSProperties
   activeOption?: React.CSSProperties
@@ -8,6 +8,6 @@ export default interface MutliSelectStyles {
   matcherToolTip?: React.CSSProperties
   matcherEdit?: React.CSSProperties
   input?: React.CSSProperties
-  mutliSelect?: React.CSSProperties
+  reactFacetedSearch?: React.CSSProperties
   errorMessage?: React.CSSProperties
 }

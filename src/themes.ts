@@ -1,10 +1,10 @@
-import { MutliSelectStyles } from './component/types'
+import { ReactFacetedSearchStyles } from './component/types'
 
 export type Theme = 'none' | 'metallic'
 export const themes: Theme[] = ['none', 'metallic']
 
-export const metallicTheme: MutliSelectStyles = {
-  mutliSelect: {
+export const metallicTheme: ReactFacetedSearchStyles = {
+  reactFacetedSearch: {
     borderBottom: '#00468C 1px solid',
     borderRight: '#00468C 1px solid',
     borderTop: 'white 1px solid',
@@ -62,7 +62,7 @@ export const bodyStyleFromTheme = (
 
 export const styleFromTheme = (
   theme: string,
-): MutliSelectStyles | undefined => {
+): ReactFacetedSearchStyles | undefined => {
   if (theme === 'metallic') {
     return metallicTheme
   }
@@ -72,7 +72,7 @@ export const styleFromTheme = (
 
 export const styleCodeFromTheme = (theme: string): string => {
   if (theme === 'metallic') {
-    return ` mutliSelect: {
+    return ` reactFacetedSearch: {
       borderBottom: '#00468C 1px solid',
       borderRight: '#00468C 1px solid',
       borderTop: 'white 1px solid;',

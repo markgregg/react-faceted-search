@@ -1,9 +1,8 @@
 import * as React from 'react'
-import { Option, MutliSelectStyles, Config, Value } from '../../types'
+import { Option, ReactFacetedSearchStyles, Config, Value } from '../../types'
 import { configContext } from '@/component/state/context'
 import { getText, getValue } from '@/component/utils'
-import { FaCaretDown } from "react-icons/fa";
-import { MdOutlineHelpCenter } from "react-icons/md";
+import { FaCaretDown, FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
 import './OptionList.css'
 
 interface OptionListProps {
@@ -11,12 +10,11 @@ interface OptionListProps {
   activeOption: number | null
   onSelectOption: (option: Option) => void
   onSelectActiveOption: (index: number) => void
-  styles?: MutliSelectStyles
+  styles?: ReactFacetedSearchStyles
   onSelectFunction: (func: string) => void
   onSelectOperator: (op: string) => void
   onSelectComparison: (comp: string) => void
   onSelectText: (option: Option) => void
-  onShowHelp: () => void
 }
 
 interface StaticHeader {
@@ -48,7 +46,6 @@ const OptionList: React.FC<OptionListProps> = ({
   onSelectOperator,
   onSelectComparison,
   onSelectText,
-  onShowHelp,
   styles,
 }) => {
   const [showSubItems, setShowSubItems] = React.useState<string | null>(null)
@@ -69,13 +66,34 @@ const OptionList: React.FC<OptionListProps> = ({
 
   const showOptions = () => {
     let cnt = 0
-    return options.map((entry) => {
+    let groupIndex: number | null = null
+    if (activeOption !== null) {
+      for (let i = 0; i < options.length; i++) {
+        if (activeOption >= cnt &&
+          activeOption < (cnt + options[i][1].length)) {
+          groupIndex = i
+          break
+        }
+        cnt += options[i][1].length
+      }
+    }
+    cnt = 0
+    return options.map((entry, index) => {
       const [category, categoryOptions] = entry
+      const homeEnd = index === 0 && (groupIndex !== 0 || groupIndex > 0) ? 'Home' : index === options.length - 1 && (!groupIndex || groupIndex < options.length - 1) ? 'End' : ''
+      const pgUpDown = (index + 1 === groupIndex ? 'PgUp' : index - 1 === groupIndex ? 'PgDown' : '')
+      const allKeys = (homeEnd !== '' && pgUpDown !== '' ? `${homeEnd} / ${pgUpDown}` : homeEnd !== '' ? homeEnd : pgUpDown)
+
       return (
         <ul key={category}>
 
           <li className="optionListCategory" style={styles?.optionCategory}>
             {category}
+            <i>{
+              allKeys !== ''
+                ? ` (${allKeys})`
+                : ''
+            }</i>
           </li>
           {categoryOptions.map((option) => {
             const idx = cnt++
@@ -144,6 +162,12 @@ const OptionList: React.FC<OptionListProps> = ({
         maxHeight: config.maxDropDownHeight ?? 210
       }}
     >
+      <div className='optionsHelp'>
+        <div><b>Edit Prev Matcher</b>  (Shift+<FaLongArrowAltLeft />)</div>
+        <div><b>Edit Next Matcher</b>  (Shift+<FaLongArrowAltRight />)</div>
+        <div><b>Move Matcher Left</b>  (Ctrl+<FaLongArrowAltLeft />)</div>
+        <div><b>Move Matcher Right</b>  (Ctrl+<FaLongArrowAltRight />)</div>
+      </div>
       <div
         className='optionStaticList'
         style={{
@@ -151,16 +175,6 @@ const OptionList: React.FC<OptionListProps> = ({
           maxHeight: config.maxStaticListHeight ?? 200
         }}
       >
-        <div
-          id="option_help"
-          className='optionsHelp'
-          onClick={() => onShowHelp()}
-        >
-          <MdOutlineHelpCenter
-            className='optionsHelpIcon'
-          />
-          Help
-        </div>
         {
           items.map(item =>
             !('header' in item)

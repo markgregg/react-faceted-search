@@ -16,7 +16,7 @@ const App = () => {
   const [options, setOptions] = React.useState<ReactFacetedSearchOptions>({ showCategories: true, hideToolTip: true, categoryPosition: 'top', promiseDelay: 1 })
   return (
     <div className="mainBody">
-      <h2>MutliSelect</h2>
+      <h2>ReactFacetedSearch</h2>
       <div className='mainOptions'>
         <div className="mainSelection">
           <b>Exaples</b>

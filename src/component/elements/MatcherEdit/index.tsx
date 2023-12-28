@@ -7,7 +7,7 @@ import {
 } from '../../state/context'
 import { guid } from '../../utils'
 import OptionList from '../OptionList'
-import MutliSelectStyles from '../../types/ReactFacetedSearchStyles'
+import ReactFacetedSearchStyles from '../../types/ReactFacetedSearchStyles'
 import ErrorMessage from '../ErrorMessage'
 import Nemonic from '@/component/types/Nemonic'
 import { FUNC_ID } from '@/component/types/Opton'
@@ -20,7 +20,6 @@ import {
 } from './MatcherEditFunctions'
 import './MatcherEdit.css'
 import { DataSourceLookup, DataSourceValue, PromiseLookup } from '@/component/types/DataSource'
-import Help from '../Help'
 
 interface MatcherEditProps {
   matcher?: Matcher
@@ -37,7 +36,7 @@ interface MatcherEditProps {
   first: boolean
   allowFunctions?: boolean
   allowFreeText?: boolean
-  styles?: MutliSelectStyles
+  styles?: ReactFacetedSearchStyles
 }
 
 const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
@@ -85,7 +84,6 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       React.useState<boolean>(false)
     const controlHasFocus = React.useContext<boolean>(hasFocusContext)
     const selection = React.useContext<Selection>(selectionContext)
-    const [showHelp, setShowHelp] = React.useState<boolean>(false)
 
     const setTextLine = (op: string | null = null, comp: string | null = null, option: Option | null = null, funcName: string | null = null) => {
       let line = ''
@@ -209,7 +207,6 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
 
     interface FunctionState {
       allOptions: [string, Option[]][]
-      totalCount: number
       op: 'or' | 'and' | null
     }
 
@@ -295,7 +292,6 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
         })
       if (functions.length > 0) {
         functionState.allOptions.push([FUNCTIONS_TEXT, functions])
-        functionState.totalCount += functions.length
       }
     }
 
@@ -314,7 +310,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
               promise(searchText, functionState.op, selection.matchers)
                 .then((items) => {
                   if (currentKey === key.current) {
-                    functionState.totalCount += updateOptions(
+                    updateOptions(
                       items,
                       ds,
                       dsl,
@@ -333,7 +329,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
               matchItems(item, dsl, searchText),
             )
             if (items.length > 0) {
-              functionState.totalCount += updateOptions(
+              updateOptions(
                 items,
                 ds,
                 dsl,
@@ -366,7 +362,6 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
           [{ source: ds.name, value, text: value.toString() }],
           config.dataSources,
         )
-        functionState.totalCount += 1
       }
     }
 
@@ -374,7 +369,6 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       setOperator(null)
       setComparison(null)
       setMatchText(null)
-      setShowHelp(false)
 
       if (!notifiedChanging && matcher) {
         setNotifiedChaning(true)
@@ -386,7 +380,6 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       key.current = currentKey
       const functionState: FunctionState = {
         allOptions: [],
-        totalCount: 0,
         op: null,
       }
       buildOptions(newText, currentKey, functionState)
@@ -395,8 +388,10 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
     }
 
     const updateState = (functionState: FunctionState) => {
-      const { allOptions, totalCount } = functionState
+      const { allOptions } = functionState
       setOptions(allOptions)
+      let totalCount = 0
+      allOptions.forEach(op => totalCount += op[1].length)
       setTotalOptions(totalCount)
       if (totalCount > 0) {
         if (activeOption === null) {
@@ -569,16 +564,6 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       let stopPropagation = false
       setError(null)
       switch (event.code) {
-        case 'Escape':
-          if (showHelp) {
-            setShowHelp(false)
-            stopPropagation = true
-          }
-          break;
-        case 'F1':
-          setShowHelp(true)
-          stopPropagation = true
-          break;
         case 'ArrowLeft':
           stopPropagation = arrowLeft(event)
           break
@@ -723,10 +708,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
           type="text"
           placeholder="..."
         />
-        {showHelp &&
-          <Help styles={styles} onClose={() => setShowHelp(false)} />
-        }
-        {controlHasFocus && !showHelp && (!matcher || options.length > 0) && (
+        {controlHasFocus && (
           <OptionList
             options={options}
             activeOption={activeOption}
@@ -737,7 +719,6 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
             onSelectComparison={comp => setTextLine(null, comp)}
             onSelectOperator={op => setTextLine(op)}
             onSelectText={option => setTextLine(null, null, option)}
-            onShowHelp={() => setShowHelp(true)}
           />
         )}
       </div>

@@ -6,7 +6,7 @@ import DataSource, {
   numberComparisons,
 } from './DataSource'
 import Matcher, { Value } from './Matcher'
-import MutliSelectStyles from './ReactFacetedSearchStyles'
+import ReactFacetedSearchStyles from './ReactFacetedSearchStyles'
 import Option, { FUNC_ID } from './Opton'
 import Nemonic, { FreTextFunc } from './Nemonic'
 import Selection from './Selection'
@@ -15,7 +15,7 @@ export type {
   Config,
   DataSource,
   Matcher,
-  MutliSelectStyles,
+  ReactFacetedSearchStyles,
   Option,
   Value,
   OperatorDisplay,

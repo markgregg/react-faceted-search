@@ -3,16 +3,16 @@
   top: calc(100% + 5px);
   left: 0px;
   width: 100%;
-  color: var(--matcherEditOptionsColor, black);
-  border-top: var(--matcherEditOptionsBorder, 2px solid gainsboro);
-  border-left: var(--matcherEditOptionsBorder, 2px solid gainsboro);
-  border-bottom: var(--matcherEditOptionsBorder, 2px solid darkgray);
-  border-right: var(--matcherEditOptionsBorder, 2px solid darkgray);
+  color: var(--reactFacetedSearchFontColor, black);
+  border-top: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-left: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
+  border-right: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
   border-radius: 4px;
   animation: growDown 300ms ease-in-out forwards;
   transform-origin: top center;
   z-index: 999;
-  background: var(--matcherEditOptionsBackgroundColor, rgb(255, 255, 255));
+  background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -30,7 +30,7 @@
 }
 
 .optionListActiveOption {
-  background: var(--optionListActiveOption, lightgray);
+  background: var(--reactFacetedSearchActiveOption, lightgray);
 }
 
 .optionListCategory {
@@ -68,7 +68,7 @@
 }
 
 .optionStaticItem:hover {
-  color: darkgray;
+  color: var(--reactFacetedSearchItemHover, gray);
 }
 
 .optionStaticHeader {
@@ -85,23 +85,22 @@
 }
 
 .optionStaticHeaderMenu:hover {
-  color: darkgray;
-}
-
-.subItemsList {
-  position: absolute;
-}
-
-.optionsHelpIcon {
-  font-size: large;
+  color: var(--reactFacetedSearchItemHover, gray);
 }
 
 .optionsHelp {
   display: flex;
   flex-direction: row;
-  column-gap: 5px;
+  justify-content: space-evenly;
+  font-size: x-small;
+  width: 100%;
 }
 
-.optionsHelp:hover {
-  color: darkgray;
+
+.helpKeys {
+  width: 80px;
+}
+
+.helpKeysb {
+  width: 60px;
 }

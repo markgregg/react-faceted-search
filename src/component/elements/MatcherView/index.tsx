@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Matcher, MutliSelectStyles } from '../../types'
+import { Matcher, ReactFacetedSearchStyles } from '../../types'
 import MatcherEdit from '../MatcherEdit'
 import { TiMinus } from 'react-icons/ti'
 import Nemonic from '@/component/types/Nemonic'
@@ -28,7 +28,7 @@ interface MatcherViewProps {
   categoryPosition?: 'top' | 'left'
   hideToolTip?: boolean
   allowFreeText?: boolean
-  styles?: MutliSelectStyles
+  styles?: ReactFacetedSearchStyles
 }
 
 const MatcherView: React.FC<MatcherViewProps> = ({

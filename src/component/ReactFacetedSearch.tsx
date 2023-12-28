@@ -3,7 +3,7 @@ import {
   Config,
   DataSource,
   Matcher,
-  MutliSelectStyles,
+  ReactFacetedSearchStyles,
   Option,
   Value,
   OperatorDisplay,
@@ -64,7 +64,7 @@ interface ReactFacetedSearchProps {
   pasteMatchTimeout?: number
   pasteFreeTextAction?: FreTextFunc
   promiseDelay?: number
-  styles?: MutliSelectStyles
+  styles?: ReactFacetedSearchStyles
 }
 const comparisonsFromDataSources = (dataSources: DataSource[]): string[] => {
   return dataSources.flatMap((ds) => ds.comparisons).filter(isUnique)
@@ -484,7 +484,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
         <selectionContext.Provider value={selection}>
           <div
             id="ReactFacetedSearch"
-            style={styles?.mutliSelect}
+            style={styles?.reactFacetedSearch}
             className="reactFacetedSearchMain"
             ref={editDivRef}
             onKeyDown={handleKeyPress}
@@ -603,7 +603,7 @@ export type {
   Config,
   DataSource,
   Matcher,
-  MutliSelectStyles,
+  ReactFacetedSearchStyles,
   Option,
   Value,
   OperatorDisplay,

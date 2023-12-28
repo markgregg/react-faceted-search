@@ -1,27 +1,26 @@
 .matcherViewMain {
-  /* border: dashed 1px black; */
   padding-left: 2px;
   padding-right: 2px;
   display: flex;
-  background: var(--matcherViewMainBackgroundColor);
+  background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
 }
 
 .matcherViewToolTip {
   position: absolute;
   left: 0px;
   width: max-content;
-  background: var(--matcherViewTooltipBackgroundColor, rgb(255, 255, 255));
-  border: var(--matcherEditOptionsBorder, 1px solid rgb(204, 204, 204));
+  background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
+  border: var(--reactFacetedSearchBackgroundColor, 1px solid rgb(204, 204, 204));
   border-radius: 4px;
 }
 
 .deleteIcon {
-  color: var(--matcherViewMainDeleteIconColor);
+  color: var(--reactFacetedSearchIconColor, black);
   height: 100%;
 }
 
 .deleteIcon:hover {
-  color: var(--matcherViewMainDeleteIconHowverColor, gray);
+  color: var(--reactFacetedSearchIconHoverColor, rgb(140, 140, 140));
 }
 
 .matcherViewContainer {
@@ -30,7 +29,7 @@
 }
 
 .matcherViewWarning {
-  background: var(--matcherViewWarningBackgroundColor, orange);
+  background: var(--reactFacetedSearchWarningBackgroundColor, orange);
 }
 
 .matchViewCategory {
