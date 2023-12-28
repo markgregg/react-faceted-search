@@ -175,7 +175,6 @@ describe('MatcherEdit', () => {
     result.fireChange('#edit_input', { target: { value: 'lo' } })
     result.fireChange('#edit_input', { target: { value: 'loa' } })
     await delay(1000)
-    result.logDom()
     expect(() => result.getByText('aploked')).toThrowError()
     result.fireKeyDown('#edit_input', { code: 'ArrowUp' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
