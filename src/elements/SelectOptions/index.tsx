@@ -47,6 +47,10 @@ const SelectOptions: React.FC<SelectOptionsProps> = ({
         <label>mockPromiseTime</label>
         <input type='number' value={options.mockPromiseTime} onChange={e => onValueChanged({ ...options, mockPromiseTime: Number.parseInt(e.target.value) })} />
       </div>
+      <div className="optionGroup">
+        <label>defaultItemLimit</label>
+        <input type='number' value={options.defaultItemLimit} onChange={e => onValueChanged({ ...options, defaultItemLimit: Number.parseInt(e.target.value) })} />
+      </div>
     </div>
   )
 }

@@ -7,4 +7,5 @@ export interface ReactFacetedSearchOptions {
   hideToolTip?: boolean
   promiseDelay?: number
   mockPromiseTime?: number
+  defaultItemLimit?: number
 }
