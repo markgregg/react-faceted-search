@@ -27,6 +27,9 @@
   padding-left: 10px;
   padding-right: 5px;
   text-align: start;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .optionListActiveOption {
@@ -34,11 +37,13 @@
 }
 
 .optionListCategory {
-
   font-weight: bold;
   font-size: x-small;
   padding-left: 5px;
   padding-right: 5px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 @keyframes growDown {
@@ -103,4 +108,9 @@
 
 .helpKeysb {
   width: 60px;
+}
+
+.optionSelectMultiple {
+  position: absolute;
+  left: 40%;
 }

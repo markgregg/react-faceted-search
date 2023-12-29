@@ -8,7 +8,7 @@ import './OptionList.css'
 interface OptionListProps {
   options: [string, Option[]][]
   activeOption: number | null
-  onSelectOption: (option: Option) => void
+  onSelectOption: (option: Option, insert: boolean) => void
   onSelectActiveOption: (index: number) => void
   styles?: ReactFacetedSearchStyles
   onSelectFunction: (func: string) => void
@@ -60,7 +60,7 @@ const OptionList: React.FC<OptionListProps> = ({
   }, [activeOption])
 
   const selectOption = (event: React.MouseEvent, option: Option) => {
-    onSelectOption(option)
+    onSelectOption(option, event.shiftKey)
     event.stopPropagation()
   }
 
@@ -80,8 +80,10 @@ const OptionList: React.FC<OptionListProps> = ({
     cnt = 0
     return options.map((entry, index) => {
       const [category, categoryOptions] = entry
+
       const homeEnd = index === 0 && (groupIndex !== 0 || groupIndex > 0) ? 'Home' : index === options.length - 1 && (!groupIndex || groupIndex < options.length - 1) ? 'End' : ''
       const pgUpDown = (index + 1 === groupIndex ? 'PgUp' : index - 1 === groupIndex ? 'PgDown' : '')
+      const selectMultiple = index === 0 ? 'Hold Shift to select multiple items' : ''
       const allKeys = (homeEnd !== '' && pgUpDown !== '' ? `${homeEnd} / ${pgUpDown}` : homeEnd !== '' ? homeEnd : pgUpDown)
 
       return (
@@ -94,6 +96,7 @@ const OptionList: React.FC<OptionListProps> = ({
                 ? ` (${allKeys})`
                 : ''
             }</i>
+            <span className='optionSelectMultiple'>{selectMultiple}</span>
           </li>
           {
             categoryOptions.length === 0 &&

@@ -13,8 +13,23 @@ const ErrorMessage: React.FC<ErrorMessageProperties> = ({
   onErrorAcknowledged,
   style,
 }) => {
+  const divRef = React.useRef<HTMLDivElement | null>(null)
+  const [top, setTop] = React.useState<number>(22)
+
+  React.useEffect(() => {
+    setTop((divRef.current?.clientHeight ?? 22) * -1 - 4)
+  }, [])
+
   return (
-    <div id="editError" className="errorMessageMain" style={style}>
+    <div
+      id="editError"
+      className="errorMessageMain"
+      style={{
+        ...style,
+        top
+      }}
+      ref={divRef}
+    >
       <MdClear className="errorMessageIcon" onClick={onErrorAcknowledged} />
       {errorMessage}
     </div>

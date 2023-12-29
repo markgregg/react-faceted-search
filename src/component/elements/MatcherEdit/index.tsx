@@ -680,11 +680,15 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       }
     }
 
-    const selectOption = (option?: Option | '(' | ')') => {
+    const selectOption = (option?: Option | '(' | ')', insert: boolean = false) => {
       const newMatcher = validate(option)
       if (newMatcher !== false) {
-        onMatcherChanged(newMatcher)
-        resetEdit()
+        if (insert && onInsertMatcher && newMatcher) {
+          onInsertMatcher(newMatcher)
+        } else {
+          onMatcherChanged(newMatcher)
+          resetEdit()
+        }
       }
     }
 
