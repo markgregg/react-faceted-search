@@ -316,7 +316,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
                 )
                 updateState(functionState)
               }
-              promise(searchText, functionState.op, selection.matchers)
+              promise(searchText, functionState.op, selection.matchers.filter(m => m.key !== matcher?.key))
                 .then((items) => {
                   if (currentKey === key.current) {
                     if (items.length > 0) {
@@ -680,15 +680,11 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       }
     }
 
-    const selectOption = (option?: Option | '(' | ')', insert: boolean = false) => {
+    const selectOption = (option?: Option | '(' | ')') => {
       const newMatcher = validate(option)
       if (newMatcher !== false) {
-        if (insert && onInsertMatcher && newMatcher) {
-          onInsertMatcher(newMatcher)
-        } else {
-          onMatcherChanged(newMatcher)
-          resetEdit()
-        }
+        onMatcherChanged(newMatcher)
+        resetEdit()
       }
     }
 
@@ -735,7 +731,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
             options={options}
             activeOption={activeOption}
             onSelectActiveOption={setActiveOption}
-            onSelectOption={selectOption}
+            onSelectOption={(option, insert) => insert ? insertMatcher(option) : selectOption(option)}
             styles={styles}
             onSelectFunction={func => setTextLine(null, null, null, func)}
             onSelectComparison={comp => setTextLine(null, comp)}
