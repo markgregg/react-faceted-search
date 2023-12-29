@@ -51,6 +51,10 @@ const SelectOptions: React.FC<SelectOptionsProps> = ({
         <label>defaultItemLimit</label>
         <input type='number' value={options.defaultItemLimit} onChange={e => onValueChanged({ ...options, defaultItemLimit: Number.parseInt(e.target.value) })} />
       </div>
+      <div className="optionGroup">
+        <label>showWhenSearching</label>
+        <input type='checkbox' checked={options.showWhenSearching} onChange={e => onValueChanged({ ...options, showWhenSearching: e.target.checked })} />
+      </div>
     </div>
   )
 }

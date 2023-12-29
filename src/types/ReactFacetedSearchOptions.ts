@@ -8,4 +8,5 @@ export interface ReactFacetedSearchOptions {
   promiseDelay?: number
   mockPromiseTime?: number
   defaultItemLimit?: number
+  showWhenSearching?: boolean
 }

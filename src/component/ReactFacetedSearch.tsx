@@ -2,6 +2,8 @@ import * as React from 'react'
 import {
   Config,
   DataSource,
+  DataSourceLookup,
+  DataSourceValue,
   Matcher,
   ReactFacetedSearchStyles,
   Option,
@@ -64,6 +66,7 @@ interface ReactFacetedSearchProps {
   pasteMatchTimeout?: number
   pasteFreeTextAction?: FreTextFunc
   promiseDelay?: number
+  showWhenSearching?: boolean
   styles?: ReactFacetedSearchStyles
 }
 const comparisonsFromDataSources = (dataSources: DataSource[]): string[] => {
@@ -99,6 +102,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   pasteFreeTextAction,
   pasteMatchTimeout,
   promiseDelay,
+  showWhenSearching,
   styles,
 }) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null)
@@ -132,6 +136,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
       maxStaticListHeight,
       searchStartLength,
       promiseDelay,
+      showWhenSearching
     }
   }, [
     dataSources,
@@ -146,7 +151,8 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     minStaticListHeight,
     maxStaticListHeight,
     searchStartLength,
-    promiseDelay
+    promiseDelay,
+    showWhenSearching
   ])
 
   React.useEffect(() => {
@@ -602,6 +608,8 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
 export type {
   Config,
   DataSource,
+  DataSourceLookup,
+  DataSourceValue,
   Matcher,
   ReactFacetedSearchStyles,
   Option,

@@ -1,5 +1,7 @@
 import Config, { OperatorDisplay } from './Config'
 import DataSource, {
+  DataSourceLookup,
+  DataSourceValue,
   SourceItem,
   defaultComparison,
   stringComparisons,
@@ -14,6 +16,8 @@ import Selection from './Selection'
 export type {
   Config,
   DataSource,
+  DataSourceLookup,
+  DataSourceValue,
   Matcher,
   ReactFacetedSearchStyles,
   Option,

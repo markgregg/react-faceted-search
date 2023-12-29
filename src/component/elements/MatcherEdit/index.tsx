@@ -306,14 +306,16 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
           const promise = dsl.source as PromiseLookup
           setTimeout(() => {
             if (currentKey === key.current) {
-              addOptionsPlaceholder(
-                ds,
-                dsl,
-                functionState.allOptions,
-                config.defaultItemLimit,
-                config.dataSources
-              )
-              updateState(functionState)
+              if (config.showWhenSearching) {
+                addOptionsPlaceholder(
+                  ds,
+                  dsl,
+                  functionState.allOptions,
+                  config.defaultItemLimit,
+                  config.dataSources
+                )
+                updateState(functionState)
+              }
               promise(searchText, functionState.op, selection.matchers)
                 .then((items) => {
                   if (currentKey === key.current) {
@@ -327,7 +329,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
                         config.dataSources,
                       )
                       updateState(functionState)
-                    } else {
+                    } else if (config.showWhenSearching) {
                       if (removeOptionsPlaceholder(
                         ds,
                         functionState.allOptions
