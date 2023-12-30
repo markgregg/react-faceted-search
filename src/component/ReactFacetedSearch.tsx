@@ -67,6 +67,7 @@ interface ReactFacetedSearchProps {
   pasteFreeTextAction?: FreTextFunc
   promiseDelay?: number
   showWhenSearching?: boolean
+  hideHelp?: boolean
   styles?: ReactFacetedSearchStyles
 }
 const comparisonsFromDataSources = (dataSources: DataSource[]): string[] => {
@@ -103,6 +104,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   pasteMatchTimeout,
   promiseDelay,
   showWhenSearching,
+  hideHelp,
   styles,
 }) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null)
@@ -136,7 +138,8 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
       maxStaticListHeight,
       searchStartLength,
       promiseDelay,
-      showWhenSearching
+      showWhenSearching,
+      hideHelp
     }
   }, [
     dataSources,
@@ -152,7 +155,8 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     maxStaticListHeight,
     searchStartLength,
     promiseDelay,
-    showWhenSearching
+    showWhenSearching,
+    hideHelp
   ])
 
   React.useEffect(() => {

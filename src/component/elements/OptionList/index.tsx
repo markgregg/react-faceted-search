@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Option, ReactFacetedSearchStyles, Config, Value } from '../../types'
 import { configContext } from '@/component/state/context'
 import { getText, getValue } from '@/component/utils'
-import { FaCaretDown, FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
+import { FaCaretDown, FaCaretUp, FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
 import './OptionList.css'
 
 interface OptionListProps {
@@ -17,24 +17,15 @@ interface OptionListProps {
   onSelectText: (option: Option) => void
 }
 
-interface StaticHeader {
-  header: string
-}
-
 interface StaticItem {
   text: string
   value: Value
   type: 'operator' | 'comparison' | string
 }
 
-interface StaticList {
+interface StaticHeader {
   header: string
   items: StaticItem[]
-}
-
-interface StaticOther {
-  header: string
-  type: string
 }
 
 const OptionList: React.FC<OptionListProps> = ({
@@ -49,15 +40,21 @@ const OptionList: React.FC<OptionListProps> = ({
   styles,
 }) => {
   const [showSubItems, setShowSubItems] = React.useState<string | null>(null)
+  const [width, setWidth] = React.useState<number>(0)
   const activeItemRef = React.useRef<HTMLLIElement | null>(null)
   const config = React.useContext<Config>(configContext)
-
 
   React.useEffect(() => {
     if (activeItemRef.current && activeItemRef.current.scrollIntoView) {
       activeItemRef.current.scrollIntoView({ block: 'end', behavior: 'smooth' })
     }
   }, [activeOption])
+
+  const updateWidth = (divElement: HTMLDivElement | null, showItems: string | null, header: string) => {
+    if (divElement && showItems === header) {
+      setWidth(divElement.clientWidth)
+    }
+  }
 
   const selectOption = (event: React.MouseEvent, option: Option) => {
     onSelectOption(option, event.shiftKey)
@@ -134,23 +131,28 @@ const OptionList: React.FC<OptionListProps> = ({
   }
 
   const showStaticOptions = (showItems: string | null) => {
-    const items: (StaticHeader | StaticItem | StaticList | StaticOther)[] = []
+    const items: StaticHeader[] = []
     if (config.functions && config.functions.length > 0) {
-      items.push({ header: 'Functions' })
-      config.functions.forEach(func => items.push({ text: func.name, value: func.name, type: 'function' }))
+      items.push({
+        header: 'Functions',
+        items: config.functions.map(func => { return { text: func.name, value: func.name, type: 'function' } })
+      })
     }
     if (config.operators !== 'Simple') {
-      items.push({ header: 'Operators' })
-      items.push({ text: 'And', value: 'and', type: 'operator' })
-      items.push({ text: 'Or', value: 'or', type: 'operator' })
-      if (config.operators === 'Complex') {
-        items.push({ text: '( Open bracket', value: '(', type: 'operator' })
-        items.push({ text: ') Close bracket', value: ')', type: 'operator' })
-      }
+      items.push({
+        header: 'Operators',
+        items: [
+          { text: 'And', value: 'and', type: 'operator' },
+          { text: 'Or', value: 'or', type: 'operator' },
+          ...(config.operators === 'Complex' ? [{ text: '( Open bracket', value: '(', type: 'operator' }, { text: ') Close bracket', value: ')', type: 'operator' }] : [])
+        ]
+      })
     }
     if (config.operators !== 'Simple') {
-      items.push({ header: 'Comparison' })
-      items.push(...config.comparisonDescriptions.map(c => { return { text: c.description === '' ? c.symbol : c.description, value: c.symbol, type: 'comparison' } }) as StaticItem[])
+      items.push({
+        header: 'Comparison',
+        items: config.comparisonDescriptions.map(c => { return { text: c.description === '' ? c.symbol : c.description, value: c.symbol, type: 'comparison' } })
+      })
     }
 
     config.dataSources.forEach(ds => {
@@ -160,8 +162,10 @@ const OptionList: React.FC<OptionListProps> = ({
           if ('source' in def && def.source) {
             if (typeof def.source !== 'function') {
               if (lastItem !== ds.title) {
-                items.push({ header: ds.title })
-                items.push(...def.source.map(i => { return { text: getText(i, def), value: getValue(i, def), type: ds.name } }) as StaticItem[])
+                items.push({
+                  header: ds.title,
+                  items: def.source.map(i => { return { text: getText(i, def), value: getValue(i, def), type: ds.name } })
+                })
               }
             }
           }
@@ -174,12 +178,17 @@ const OptionList: React.FC<OptionListProps> = ({
         maxHeight: config.maxDropDownHeight ?? 210
       }}
     >
-      <div className='optionsHelp'>
-        <div><b>Edit Prev Matcher</b>  (Shift+<FaLongArrowAltLeft />)</div>
-        <div><b>Edit Next Matcher</b>  (Shift+<FaLongArrowAltRight />)</div>
-        <div><b>Move Matcher Left</b>  (Ctrl+<FaLongArrowAltLeft />)</div>
-        <div><b>Move Matcher Right</b>  (Ctrl+<FaLongArrowAltRight />)</div>
-      </div>
+      {
+        !config.hideHelp &&
+        <div className='optionsHelp'>
+          <div><b>Edit Prev Matcher</b>  (Shift+<FaLongArrowAltLeft />)</div>
+          <div><b>Edit Next Matcher</b>  (Shift+<FaLongArrowAltRight />)</div>
+          <div><b>Move Matcher Left</b>  (Ctrl+<FaLongArrowAltLeft />)</div>
+          <div><b>Move Matcher Right</b>  (Ctrl+<FaLongArrowAltRight />)</div>
+          <div><b>Delete Matcher</b>  (Shift+BackSp)</div>
+          <div><b>Delete All</b>  (Ctrl+BackSp)</div>
+        </div>
+      }
       <div
         className='optionStaticList'
         style={{
@@ -187,49 +196,53 @@ const OptionList: React.FC<OptionListProps> = ({
           maxHeight: config.maxStaticListHeight ?? 200
         }}
       >
-        {
-          items.map(item =>
-            !('header' in item)
+        <div className='optionsStaticHeaders'>
+          {
+            items.map(item => ('header' in item)
               ? <div
-                className='optionStaticItem'
-                key={item.text + '-' + item.type}
-                onClick={() => {
-                  if (item.type === 'function') {
-                    onSelectFunction(item.text)
-                  } else if (item.type === 'comparison') {
-                    onSelectComparison(typeof item.value === 'string' ? item.value : item.value.toString())
-                  } else if (item.type === 'operator') {
-                    onSelectOperator(typeof item.value === 'string' ? item.value : item.value.toString())
-                  } else {
-                    onSelectText({ text: item.text, value: item.value, source: item.type })
-                  }
-                }}
+                key={item.header}
+                className='optionsStaticHeadersItem'
+                onMouseEnter={() => setShowSubItems(item.header)}
+                onMouseLeave={() => setShowSubItems(null)}
+                ref={ref => updateWidth(ref, showItems, item.header)}
               >
-                {item.text}
-              </div>
-              : !('items' in item)
-                ? ('type' in item)
-                  ? <div className='optionStaticHeader' key={item.header}>{item.header} - {item.type}</div>
-                  : <div className='optionStaticHeader' key={item.header}>{item.header}</div>
-                : <div
-                  className='optionStaticHeaderMenu'
-                  key={item.header}
-                  onMouseEnter={() => setShowSubItems(item.header)}
-                  onMouseLeave={() => setShowSubItems(null)}
-                >
-                  {item.header}<FaCaretDown />
-                  <div>
+                <span className='optionsStaticHeadersItemText'>{item.header}</span>
+                {
+                  showItems === item.header
+                    ? <FaCaretUp className='optionsStaticHeadersIcon' />
+                    : <FaCaretDown className='optionsStaticHeadersIcon' />
+                }
+                {
+                  showItems === item.header &&
+                  <div className='optionsStaticSubItemsList' style={{ width }}>
                     {
-                      showItems === item.header &&
-                      <div className='subItemsList'>
-                        {
-                          item.items.map(subItem => <div key={item.header + '-' + subItem.text}>{subItem.text}</div>)
-                        }
-                      </div>
+                      item.items.map(subItem =>
+                        <div
+                          className='optionStaticItem'
+                          key={subItem.text + '-' + subItem.type}
+                          onClick={() => {
+                            if (subItem.type === 'function') {
+                              onSelectFunction(subItem.text)
+                            } else if (subItem.type === 'comparison') {
+                              onSelectComparison(typeof subItem.value === 'string' ? subItem.value : subItem.value.toString())
+                            } else if (subItem.type === 'operator') {
+                              onSelectOperator(typeof subItem.value === 'string' ? subItem.value : subItem.value.toString())
+                            } else {
+                              onSelectText({ text: subItem.text, value: subItem.value, source: subItem.type })
+                            }
+                          }}
+                        >
+                          {subItem.text}
+                        </div>)
                     }
                   </div>
-                </div>
-          )
+                }
+              </div>
+              : <></>
+            )
+          }
+        </div>
+        {
         }
       </div>
     </div>

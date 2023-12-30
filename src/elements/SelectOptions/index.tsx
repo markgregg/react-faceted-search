@@ -55,6 +55,10 @@ const SelectOptions: React.FC<SelectOptionsProps> = ({
         <label>showWhenSearching</label>
         <input type='checkbox' checked={options.showWhenSearching} onChange={e => onValueChanged({ ...options, showWhenSearching: e.target.checked })} />
       </div>
+      <div className="optionGroup">
+        <label>hideHelp</label>
+        <input type='checkbox' checked={options.hideHelp} onChange={e => onValueChanged({ ...options, hideHelp: e.target.checked })} />
+      </div>
     </div>
   )
 }

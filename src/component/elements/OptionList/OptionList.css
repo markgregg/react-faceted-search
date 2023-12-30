@@ -13,8 +13,6 @@
   transform-origin: top center;
   z-index: 999;
   background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .optionListMain ul {
@@ -61,7 +59,6 @@
 }
 
 .optionStaticList {
-  padding: 5px;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
@@ -70,6 +67,7 @@
 
 .optionStaticItem {
   padding-left: 10px;
+  text-align: left;
 }
 
 .optionStaticItem:hover {
@@ -96,11 +94,13 @@
 .optionsHelp {
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: space-between;
   font-size: x-small;
-  width: 100%;
+  width: calc(100% - 10px);
+  border-bottom: 1px solid darkgray;
+  padding-left: 5px;
+  padding-right: 5px;
 }
-
 
 .helpKeys {
   width: 80px;
@@ -113,4 +113,48 @@
 .optionSelectMultiple {
   position: absolute;
   left: 40%;
+}
+
+.optionsStaticHeaders {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  background-color: lightgray;
+}
+
+.optionsStaticHeadersItem {
+  flex-grow: 1;
+  text-align: center;
+  border-top: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-left: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid black);
+  border-right: var(--reactFacetedSearchOptionsBorder, 2px solid black);
+  min-width: 100px;
+  display: flex;
+  position: relative;
+  font-size: x-small;
+}
+
+.optionsStaticHeadersItem:hover {
+  background-color: rgb(240, 240, 240);
+}
+
+.optionsStaticHeadersItemText {
+  flex-grow: 1;
+}
+
+.optionsStaticHeadersIcon {
+  padding-right: 5px;
+}
+
+.optionsStaticSubItemsList {
+  position: fixed;
+  z-index: 999;
+  top: 100%;
+  border-top: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-left: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
+  border-right: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
+  background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
 }

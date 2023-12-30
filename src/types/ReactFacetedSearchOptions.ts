@@ -9,4 +9,5 @@ export interface ReactFacetedSearchOptions {
   mockPromiseTime?: number
   defaultItemLimit?: number
   showWhenSearching?: boolean
+  hideHelp?: boolean
 }

@@ -23,5 +23,6 @@ export default interface Config {
   maxStaticListHeight?: number
   searchStartLength?: number
   promiseDelay?: number
+  hideHelp?: boolean
   showWhenSearching?: boolean
 }
