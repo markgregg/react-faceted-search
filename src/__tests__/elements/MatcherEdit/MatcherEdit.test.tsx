@@ -15,7 +15,7 @@ import {
   testDataSources,
 } from '../../testData'
 import { Config } from '@/component/types'
-import { TestHarness, createTestHarness, delay } from '@/__tests__/TestHarness'
+import { TestHarness, createTestHarness, waitForElement } from '@/__tests__/TestHarness'
 
 describe('MatcherEdit', () => {
   it('basic render with no matcher', () => {
@@ -77,7 +77,8 @@ describe('MatcherEdit', () => {
   it('test pg up', async () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await delay(1000)
+    await waitForElement(result, 'loadxx', 5000)
+    result.logDom()
     result.fireKeyDown('#edit_input', { code: 'PageUp' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
     expect(managedMatcher?.text).toBe('loadxx')
@@ -94,7 +95,7 @@ describe('MatcherEdit', () => {
   it('test end', async () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await delay(1000)
+    await waitForElement(result, 'loadxx', 5000)
     result.fireKeyDown('#edit_input', { code: 'End' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
     expect(managedMatcher?.text).toBe('loadxx')
@@ -103,7 +104,7 @@ describe('MatcherEdit', () => {
   it('test home', async () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await delay(1000)
+    await waitForElement(result, 'loa', 5000)
     result.fireKeyDown('#edit_input', { code: 'Home' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
     expect(managedMatcher?.text).toBe('loa')
@@ -112,7 +113,7 @@ describe('MatcherEdit', () => {
   it('test arrow up', async () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await delay(1000)
+    await waitForElement(result, 'loadxx', 5000)
     result.fireKeyDown('#edit_input', { code: 'ArrowUp' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
     expect(managedMatcher?.text).toBe('loadxx')
@@ -121,7 +122,7 @@ describe('MatcherEdit', () => {
   it('test arrow down', async () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await delay(1000)
+    await waitForElement(result, 'loadsp', 5000)
     result.fireKeyDown('#edit_input', { code: 'ArrowDown' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
     expect(managedMatcher?.text).toBe('loadsp')
@@ -174,7 +175,7 @@ describe('MatcherEdit', () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'lo' } })
     result.fireChange('#edit_input', { target: { value: 'loa' } })
-    await delay(1000)
+    await waitForElement(result, 'loadxx', 5000)
     expect(() => result.getByText('aploked')).toThrowError()
     result.fireKeyDown('#edit_input', { code: 'ArrowUp' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })

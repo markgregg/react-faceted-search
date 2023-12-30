@@ -3,7 +3,6 @@ import {
   act,
   fireEvent,
   prettyDOM,
-  waitFor,
 } from '@testing-library/react'
 
 export interface TestHarness {
@@ -97,18 +96,28 @@ export const createTestHarness = (
   }
 }
 
-const getElementByText = (harness: TestHarness, text: string) => {
-  try {
-    return harness.getByText(text)
-  } catch (e) {
-    return null
-  }
-}
-
-export const waitForElement = async (harness: TestHarness, id: string): Promise<void> => {
-  await waitFor(() => getElementByText(harness, id), {
-    timeout: 1000
+export const waitForElement = async (harness: TestHarness, id: string, timeout?: number): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const start = Date.now()
+    let findElement: () => void
+    findElement = () => {
+      act(() => setTimeout(() => {
+        try {
+          const element = harness.getByText(id)
+          if (!element) {
+            throw 'not set'
+          }
+          resolve()
+        } catch (e) {
+          if (Date.now() - start > (timeout ?? 10000)) {
+            reject()
+          } else {
+            findElement()
+          }
+        }
+      }, 10))
+    }
+    findElement()
   })
-}
 
-export const delay = (ms: number) => act(() => new Promise(res => setTimeout(res, ms)));
+}
