@@ -58,6 +58,14 @@
   }
 }
 
+.optionDynamicList {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+}
+
 .optionStaticList {
   display: flex;
   flex-direction: column;
@@ -71,24 +79,7 @@
 }
 
 .optionStaticItem:hover {
-  color: var(--reactFacetedSearchItemHover, gray);
-}
-
-.optionStaticHeader {
-  margin-top: 10px;
-  font-weight: bold;
-  font-size: x-small;
-}
-
-.optionStaticHeaderMenu {
-  position: relative;
-  margin-top: 10px;
-  font-weight: bold;
-  font-size: x-small;
-}
-
-.optionStaticHeaderMenu:hover {
-  color: var(--reactFacetedSearchItemHover, gray);
+  background-color: var(--reactFacetedSearchActiveOption, lightgray);
 }
 
 .optionsHelp {
@@ -133,7 +124,6 @@
   min-width: 100px;
   display: flex;
   position: relative;
-  font-size: x-small;
 }
 
 .optionsStaticHeadersItem:hover {
@@ -142,6 +132,7 @@
 
 .optionsStaticHeadersItemText {
   flex-grow: 1;
+  font-size: x-small;
 }
 
 .optionsStaticHeadersIcon {
@@ -157,4 +148,5 @@
   border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
   border-right: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
   background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
+  padding-bottom: 5px;
 }

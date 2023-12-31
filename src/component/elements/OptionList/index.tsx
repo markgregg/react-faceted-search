@@ -189,13 +189,7 @@ const OptionList: React.FC<OptionListProps> = ({
           <div><b>Delete All</b>  (Ctrl+BackSp)</div>
         </div>
       }
-      <div
-        className='optionStaticList'
-        style={{
-          minHeight: config.minStaticListHeight,
-          maxHeight: config.maxStaticListHeight ?? 200
-        }}
-      >
+      <div className='optionStaticList'>
         <div className='optionsStaticHeaders'>
           {
             items.map(item => ('header' in item)
@@ -259,7 +253,7 @@ const OptionList: React.FC<OptionListProps> = ({
     <div id="option_list" className="optionListMain" style={listStyle}>
       {
         options.length > 0
-          ? showOptions()
+          ? <div className='optionDynamicList' style={{ maxHeight: config.maxDropDownHeight }}>{showOptions()}</div>
           : showStaticOptions(showSubItems)
       }
 

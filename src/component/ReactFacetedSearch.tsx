@@ -56,8 +56,6 @@ interface ReactFacetedSearchProps {
   ) => void
   clearIcon?: React.ReactElement
   maxDropDownHeight?: number
-  minStaticListHeight?: number
-  maxStaticListHeight?: number
   searchStartLength?: number
   showCategories?: boolean
   categoryPosition?: 'top' | 'left'
@@ -93,8 +91,6 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   onCompleteError,
   clearIcon,
   maxDropDownHeight,
-  minStaticListHeight,
-  maxStaticListHeight,
   searchStartLength,
   showCategories,
   categoryPosition,
@@ -134,8 +130,6 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
       defaultItemLimit: defaultItemLimit ?? ITEM_LIMIT,
       operators: operators ?? 'Complex',
       maxDropDownHeight,
-      minStaticListHeight,
-      maxStaticListHeight,
       searchStartLength,
       promiseDelay,
       showWhenSearching,
@@ -151,8 +145,6 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     defaultItemLimit,
     operators,
     maxDropDownHeight,
-    minStaticListHeight,
-    maxStaticListHeight,
     searchStartLength,
     promiseDelay,
     showWhenSearching,

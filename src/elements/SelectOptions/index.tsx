@@ -2,7 +2,7 @@ import { ReactFacetedSearchOptions } from "@/types/ReactFacetedSearchOptions"
 import React from "react"
 import './SelectOptions.css'
 
-export type PropertyType = 'maxDropDownHeight' | 'minStaticListHeight' | 'maxStaticListHeight' |
+export type PropertyType = 'maxDropDownHeight' |
   'showCategories' | 'categoryPosition' | 'hideToolTip' | 'promiseDelay' | 'mockPromiseTime'
 export interface SelectOptionsProps {
   options: ReactFacetedSearchOptions
@@ -18,14 +18,6 @@ const SelectOptions: React.FC<SelectOptionsProps> = ({
       <div className="optionGroup">
         <label>maxDropDownHeight</label>
         <input type='number' value={options.maxDropDownHeight} onChange={e => onValueChanged({ ...options, maxDropDownHeight: Number.parseFloat(e.target.value) })} />
-      </div>
-      <div className="optionGroup">
-        <label>minStaticListHeight</label>
-        <input type='number' value={options.minStaticListHeight} onChange={e => onValueChanged({ ...options, minStaticListHeight: Number.parseFloat(e.target.value) })} />
-      </div>
-      <div className="optionGroup">
-        <label>maxStaticListHeight</label>
-        <input type='number' value={options.maxStaticListHeight} onChange={e => onValueChanged({ ...options, maxStaticListHeight: Number.parseFloat(e.target.value) })} />
       </div>
       <div className="optionGroup">
         <label>showCategories</label>

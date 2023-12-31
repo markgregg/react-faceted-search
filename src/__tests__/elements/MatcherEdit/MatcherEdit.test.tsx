@@ -78,7 +78,6 @@ describe('MatcherEdit', () => {
     const result = createMatcherEdit(false, undefined)
     result.fireChange('#edit_input', { target: { value: 'loa' } })
     await waitForElement(result, 'loadxx', true)
-    result.logDom()
     result.fireKeyDown('#edit_input', { code: 'PageUp' })
     result.fireKeyDown('#edit_input', { code: 'Enter' })
     expect(managedMatcher?.text).toBe('loadxx')

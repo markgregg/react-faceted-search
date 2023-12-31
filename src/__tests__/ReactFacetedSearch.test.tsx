@@ -239,7 +239,6 @@ describe('ReactFacetedSearch', () => {
   it('edit matcher', async () => {
     const result = createReactFacetedSearch(singleMatcher)
     result.fireKeyDown('#edit_input', { code: 'Backspace' })
-    result.logDom()
     result.assertElementValue('#test_input', '=text')
   })
 
@@ -353,9 +352,7 @@ describe('ReactFacetedSearch', () => {
 
   it('test highlight mismatched close brackets', async () => {
     const result = createReactFacetedSearch(multipleListMatchers)
-
     result.fireChange('#edit_input', { target: { value: ')' } })
-    result.logDom()
     const bracket = result.getByText(')')
     expect(bracket.className).toBe('matcherViewWarning')
   })
