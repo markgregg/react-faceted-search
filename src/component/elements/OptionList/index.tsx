@@ -150,7 +150,7 @@ const OptionList: React.FC<OptionListProps> = ({
     }
     if (config.operators !== 'Simple') {
       items.push({
-        header: 'Comparison',
+        header: 'Comparisons',
         items: config.comparisonDescriptions.map(c => { return { text: c.description === '' ? c.symbol : c.description, value: c.symbol, type: 'comparison' } })
       })
     }
@@ -199,7 +199,8 @@ const OptionList: React.FC<OptionListProps> = ({
         <div className='optionsStaticHeaders'>
           {
             items.map(item => ('header' in item)
-              ? <div
+              && <div
+                id={'options_' + item.header.replaceAll(' ', '_')}
                 key={item.header}
                 className='optionsStaticHeadersItem'
                 onMouseEnter={() => setShowSubItems(item.header)}
@@ -238,7 +239,6 @@ const OptionList: React.FC<OptionListProps> = ({
                   </div>
                 }
               </div>
-              : <></>
             )
           }
         </div>

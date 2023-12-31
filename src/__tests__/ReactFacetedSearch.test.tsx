@@ -182,7 +182,7 @@ describe('ReactFacetedSearch', () => {
     })
     result.fireChange('#test_input', { target: { value: 'a' } })
     result.fireKeyDown('#test_input', { code: 'Enter' })
-    await waitForElement(result, '= asdas', 5000)
+    await waitForElement(result, '= asdas', true)
     result.assertElementText('#test_label', '= asdas')
   })
 

@@ -1,4 +1,4 @@
-import { TestHarness, createTestHarness } from '@/__tests__/TestHarness'
+import { TestHarness, createTestHarness, waitForElement } from '@/__tests__/TestHarness'
 import OptionList from '../../../component/elements/OptionList'
 import Option from '../../../component/types/Opton'
 import {
@@ -58,26 +58,34 @@ describe('OptionList', () => {
     expect(activeOpt).toBe(1)
   })
 
-  it('select function', () => {
+  it('select function', async () => {
     const result = createOptionList([])
+    result.fireMouseEnter('#options_Functions')
+    await waitForElement(result, 'loadsp', true)
     result.fireClick('testfunc', true)
     expect(selectFunction).toBe('testfunc')
   })
 
-  it('select operator', () => {
+  it('select operator', async () => {
     const result = createOptionList([])
+    result.fireMouseEnter('#options_Operators')
+    await waitForElement(result, 'loadsp', true)
     result.fireClick('And', true)
     expect(selectOperator).toBe('and')
   })
 
-  it('select comp', () => {
+  it('select comp', async () => {
     const result = createOptionList([])
+    result.fireMouseEnter('#options_Comparisons')
+    await waitForElement(result, 'loadsp', true)
     result.fireClick('equals', true)
     expect(selectComparison).toBe('=')
   })
 
-  it('select static option', () => {
+  it('select static option', async () => {
     const result = createOptionList([])
+    result.fireMouseEnter('#options_list_of_strings')
+    await waitForElement(result, 'loadsp', true)
     result.fireClick('loadsp', true)
     expect(selectText).toStrictEqual({ "source": "list", "text": "loadsp", "value": "loadsp" })
   })

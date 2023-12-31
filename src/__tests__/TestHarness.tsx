@@ -53,13 +53,13 @@ export const createTestHarness = (
     fireClick: (id: string, byText: boolean = false) => {
       const element = byText ? renderResult.getByText(id) : renderResult.container.querySelector(id)
       expect(element).toBeDefined()
-      element && fireEvent.click(element)
+      element && act(() => fireEvent.click(element))
     },
 
     fireMouseEnter: (id: string, byText?: boolean) => {
       const element = byText ? renderResult.getByText(id) : renderResult.container.querySelector(id)
       expect(element).toBeDefined()
-      element && fireEvent.mouseEnter(element)
+      element && act(() => fireEvent.mouseEnter(element))
     },
 
     fireChange: (id: string, payload: any, byText?: boolean) => {
@@ -71,13 +71,13 @@ export const createTestHarness = (
     fireKeyDown: (id: string, payload: any, byText?: boolean) => {
       const element = byText ? renderResult.getByText(id) : renderResult.container.querySelector(id)
       expect(element).toBeDefined()
-      element && fireEvent.keyDown(element, payload)
+      element && act(() => fireEvent.keyDown(element, payload))
     },
 
     fireFocus: (id: string, byText?: boolean) => {
       const element = byText ? renderResult.getByText(id) : renderResult.container.querySelector(id)
       expect(element).toBeDefined()
-      element && fireEvent.focus(element)
+      element && act(() => fireEvent.focus(element))
     },
 
     assertElementValue: (id: string, value: string) => {
@@ -96,20 +96,23 @@ export const createTestHarness = (
   }
 }
 
-export const waitForElement = async (harness: TestHarness, id: string, timeout?: number): Promise<void> => {
+export const waitForElement = async (harness: TestHarness, id: string, byText: boolean = false, timeout?: number): Promise<void> => {
   return new Promise((resolve, reject) => {
     const start = Date.now()
     let findElement: () => void
     findElement = () => {
       act(() => setTimeout(() => {
         try {
-          const element = harness.getByText(id)
+          const element = byText
+            ? harness.getByText(id)
+            : harness.getElement(id)
           if (!element) {
             throw 'not set'
           }
           resolve()
         } catch (e) {
-          if (Date.now() - start > (timeout ?? 10000)) {
+          if (Date.now() - start > (timeout ?? 5000)) {
+            harness.logDom()
             reject()
           } else {
             findElement()
