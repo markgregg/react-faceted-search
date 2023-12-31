@@ -9,7 +9,7 @@
   border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
   border-right: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
   border-radius: 4px;
-  animation: growDown 300ms ease-in-out forwards;
+  animation: growDown 500ms ease-in-out forwards;
   transform-origin: top center;
   z-index: 999;
   background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
@@ -32,6 +32,7 @@
 
 .optionListActiveOption {
   background: var(--reactFacetedSearchActiveOption, lightgray);
+  animation: bolder 300ms ease-in-out forwards;
 }
 
 .optionListCategory {
@@ -42,20 +43,6 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-}
-
-@keyframes growDown {
-  0% {
-    transform: scaleY(0);
-  }
-
-  80% {
-    transform: scaleY(1.1);
-  }
-
-  100% {
-    transform: scaleY(1);
-  }
 }
 
 .optionDynamicList {
@@ -80,6 +67,7 @@
 
 .optionStaticItem:hover {
   background-color: var(--reactFacetedSearchActiveOption, lightgray);
+  animation: bolder 300ms ease-in-out forwards;
 }
 
 .optionsHelp {
@@ -148,5 +136,31 @@
   border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
   border-right: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
   background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
+  transform-origin: top center;
   padding-bottom: 5px;
+  animation: growDown 500ms ease-in-out forwards;
+}
+
+@keyframes bolder {
+  0% {
+    font-weight: normal;
+  }
+
+  100% {
+    font-weight: bolder;
+  }
+}
+
+@keyframes growDown {
+  0% {
+    transform: scaleY(0);
+  }
+
+  80% {
+    transform: scaleY(1.1);
+  }
+
+  100% {
+    transform: scaleY(1);
+  }
 }
