@@ -52,41 +52,62 @@ export const createTestHarness = (
 
     fireClick: (id: string, byText: boolean = false) => {
       const element = byText ? renderResult.getByText(id) : renderResult.container.querySelector(id)
+      if (!element) {
+        console.log(`${id} not found`)
+      }
       expect(element).toBeDefined()
       element && act(() => fireEvent.click(element))
     },
 
     fireMouseEnter: (id: string, byText?: boolean) => {
       const element = byText ? renderResult.getByText(id) : renderResult.container.querySelector(id)
+      if (!element) {
+        console.log(`${id} not found`)
+      }
       expect(element).toBeDefined()
       element && act(() => fireEvent.mouseEnter(element))
     },
 
     fireChange: (id: string, payload: any, byText?: boolean) => {
       const element = byText ? renderResult.getByText(id) : renderResult.container.querySelector(id)
+      if (!element) {
+        console.log(`${id} not found`)
+      }
       expect(element).toBeDefined()
       element && act(() => fireEvent.change(element, payload))
     },
 
     fireKeyDown: (id: string, payload: any, byText?: boolean) => {
       const element = byText ? renderResult.getByText(id) : renderResult.container.querySelector(id)
+      if (!element) {
+        console.log(`${id} not found`)
+      }
       expect(element).toBeDefined()
       element && act(() => fireEvent.keyDown(element, payload))
     },
 
     fireFocus: (id: string, byText?: boolean) => {
       const element = byText ? renderResult.getByText(id) : renderResult.container.querySelector(id)
+      if (!element) {
+        console.log(`${id} not found`)
+      }
       expect(element).toBeDefined()
       element && act(() => fireEvent.focus(element))
     },
 
     assertElementValue: (id: string, value: string) => {
       const element = renderResult.container.querySelector(id)
+      if (!element) {
+        console.log(`${id} not found`)
+      }
       expect(element).toHaveValue(value)
     },
 
     assertElementText: (id: string, text: string) => {
       const element = renderResult.container.querySelector(id)
+      if (!element) {
+        console.log(`${id} not found`)
+      }
       expect(element?.textContent).toBe(text)
     },
 

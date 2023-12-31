@@ -61,7 +61,7 @@ describe('OptionList', () => {
   it('select function', async () => {
     const result = createOptionList([])
     result.fireMouseEnter('#options_Functions')
-    await waitForElement(result, 'loadsp', true)
+    await waitForElement(result, 'testfunc', true)
     result.fireClick('testfunc', true)
     expect(selectFunction).toBe('testfunc')
   })
@@ -69,7 +69,7 @@ describe('OptionList', () => {
   it('select operator', async () => {
     const result = createOptionList([])
     result.fireMouseEnter('#options_Operators')
-    await waitForElement(result, 'loadsp', true)
+    await waitForElement(result, 'And', true)
     result.fireClick('And', true)
     expect(selectOperator).toBe('and')
   })
@@ -77,7 +77,7 @@ describe('OptionList', () => {
   it('select comp', async () => {
     const result = createOptionList([])
     result.fireMouseEnter('#options_Comparisons')
-    await waitForElement(result, 'loadsp', true)
+    await waitForElement(result, 'equals', true)
     result.fireClick('equals', true)
     expect(selectComparison).toBe('=')
   })
