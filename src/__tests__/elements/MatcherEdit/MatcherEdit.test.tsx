@@ -181,14 +181,6 @@ describe('MatcherEdit', () => {
     expect(managedMatcher?.text).toBe('loadxx')
   })
 
-  it('test validation error', async () => {
-    const result = createMatcherEdit(false, undefined)
-    result.fireChange('#edit_input', { target: { value: '>asdas' } })
-    result.fireKeyDown('#edit_input', { code: 'Enter' })
-    const txt = result.getByText(`Compairson (>) isn't valid for regex.`)
-    expect(txt).toHaveTextContent(`Compairson (>) isn't valid for regex.`)
-  })
-
   it('test simple operations', async () => {
     const result = createMatcherEdit(false, singleMatcher[0], {
       config: {

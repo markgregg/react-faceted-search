@@ -35,10 +35,11 @@ describe('MatcherView', () => {
     expect(isSelected).toBeTruthy()
   })
 
-  it('delete', () => {
+  it('delete', async () => {
     const result = createMatcherView(matcherAnd, false)
     result.fireMouseEnter('#test_view')
     result.fireClick('svg')
+    await new Promise((r) => setTimeout(r, 1000));
     expect(isDeleted).toBeTruthy()
   })
 

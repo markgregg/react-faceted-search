@@ -12,6 +12,7 @@ import ErrorMessage from '../ErrorMessage'
 import Nemonic from '@/component/types/Nemonic'
 import { FUNC_ID } from '@/component/types/Opton'
 import {
+  CategoryOptions,
   FUNCTIONS_TEXT,
   FunctionState,
   addOptionsPlaceholder,
@@ -41,6 +42,8 @@ interface MatcherEditProps {
   allowFreeText?: boolean
   styles?: ReactFacetedSearchStyles
 }
+
+
 
 
 const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
@@ -80,7 +83,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
     )
     const [matchText, setMatchText] = React.useState<string | null>(null)
     const key = React.useRef('')
-    const [options, setOptions] = React.useState<[string, Option[]][]>([])
+    const [options, setOptions] = React.useState<CategoryOptions[]>([])
     const [totalOptions, setTotalOptions] = React.useState<number>(0)
     const [activeOption, setActiveOption] = React.useState<number | null>(null)
     const [error, setError] = React.useState<string | null>(null)
@@ -173,11 +176,12 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       return searchText
     }
 
-    const checkForComparison = (searchText: string): string | null => {
+    const checkForComparison = (searchText: string, funtionState: FunctionState): string | null => {
       if (searchText.length > 1) {
         const symbolPair = searchText.substring(0, 2)
         if (config.comparisons.includes(symbolPair)) {
           setComparison(symbolPair)
+          funtionState.comparison = symbolPair
           return searchText.substring(2).trim()
         }
       }
@@ -204,6 +208,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       }
       if (config.comparisons.includes(symbol)) {
         setComparison(symbol)
+        funtionState.comparison = symbol
         return searchText.substring(1).trim()
       }
       return searchText
@@ -223,7 +228,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
           ) {
             result = checkForOperator(result, functionState)
           }
-          result = checkForComparison(result)
+          result = checkForComparison(result, functionState)
           setMatchText(result)
           if (result !== null && result.length > 0) {
             const searchText = result
@@ -237,14 +242,15 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
               }
               config.dataSources.forEach((ds) => {
                 if (
-                  (!selection.activeFunction && !ds.functional) ||
-                  (selection.activeFunction &&
-                    (selection.activeFunction.requiredDataSources?.includes(
-                      ds.name,
-                    ) ||
-                      selection.activeFunction.optionalDataSources?.includes(
+                  ((!selection.activeFunction && !ds.functional) ||
+                    (selection.activeFunction &&
+                      (selection.activeFunction.requiredDataSources?.includes(
                         ds.name,
-                      )))
+                      ) ||
+                        selection.activeFunction.optionalDataSources?.includes(
+                          ds.name,
+                        )))) &&
+                  (!functionState.comparison || ds.comparisons.includes(functionState.comparison))
                 ) {
                   ds.definitions.forEach((vm) => {
                     if ('source' in vm) {
@@ -290,7 +296,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
           }
         })
       if (functions.length > 0) {
-        functionState.allOptions.push([FUNCTIONS_TEXT, functions])
+        functionState.allOptions.push({ category: FUNCTIONS_TEXT, options: functions })
       }
     }
 
@@ -316,9 +322,11 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
                 )
                 updateState(functionState)
               }
+              const pStart = Date.now()
               promise(searchText, functionState.op, selection.matchers.filter(m => m.key !== matcher?.key))
                 .then((items) => {
                   if (currentKey === key.current) {
+                    const elapses = Date.now() - pStart
                     if (items.length > 0) {
                       updateOptions(
                         items,
@@ -327,8 +335,19 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
                         functionState.allOptions,
                         config.defaultItemLimit,
                         config.dataSources,
+                        elapses > 500 && true
                       )
                       updateState(functionState)
+                      elapses > 500 && setTimeout(() => {
+                        if (currentKey === key.current) {
+                          functionState.allOptions.forEach(fs => {
+                            if (fs.category === ds.title) {
+                              fs.delayedPromise = false
+                            }
+                          })
+                          updateState(functionState)
+                        }
+                      }, 400)
                     } else if (config.showWhenSearching) {
                       if (removeOptionsPlaceholder(
                         ds,
@@ -398,7 +417,8 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       key.current = currentKey
       const functionState: FunctionState = {
         allOptions: [],
-        op: null
+        op: null,
+        comparison: null
       }
       buildOptions(newText, currentKey, functionState)
       setText(newText)
@@ -409,7 +429,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       const { allOptions } = functionState
       setOptions(allOptions)
       let totalCount = 0
-      allOptions.forEach(op => totalCount += (op[1].length === 0 ? 1 : op[1].length))
+      allOptions.forEach(op => totalCount += (op.options.length === 0 ? 1 : op.options.length))
       setTotalOptions(totalCount)
       if (totalCount > 0) {
         if (activeOption === null) {
@@ -451,7 +471,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
     const handleOptionSelection = (
       event: React.KeyboardEvent<HTMLInputElement>,
     ) => {
-      const optionsArray = options.flatMap((pair) => pair[1])
+      const optionsArray = options.flatMap((opts) => opts.options)
       if (activeOption !== null && optionsArray.length > activeOption) {
         if (optionsArray[activeOption].source === FUNC_ID) {
           const func = config.functions?.find(

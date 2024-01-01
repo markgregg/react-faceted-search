@@ -1,18 +1,11 @@
 .optionListMain {
+  z-index: 999;
   position: absolute;
   top: calc(100% + 5px);
   left: 0px;
-  width: 100%;
+  width: calc(100% - 2px);
   color: var(--reactFacetedSearchFontColor, black);
-  border-top: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
-  border-left: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
-  border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
-  border-right: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
-  border-radius: 4px;
-  animation: growDown 500ms ease-in-out forwards;
-  transform-origin: top center;
-  z-index: 999;
-  background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
+  background: transparent;
 }
 
 .optionListMain ul {
@@ -51,13 +44,31 @@
   overflow: auto;
   height: 100%;
   width: 100%;
+  border-top: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-left: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
+  border-right: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
+  border-radius: 4px;
+  animation: growDown 500ms ease-in-out forwards;
+  transform-origin: top center;
+  background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
+}
+
+.staticListContainer {
+  border-top: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-left: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
+  border-right: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
+  border-radius: 4px;
+  animation: growDown 500ms ease-in-out forwards;
+  transform-origin: top center;
+  background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
 }
 
 .optionStaticList {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  overflow: auto;
 }
 
 .optionStaticItem {
@@ -91,7 +102,9 @@
 
 .optionSelectMultiple {
   position: absolute;
-  left: 40%;
+  left: 50%;
+  font-size: x-small;
+  font-weight: bold;
 }
 
 .optionsStaticHeaders {
@@ -128,9 +141,9 @@
 }
 
 .optionsStaticSubItemsList {
-  position: fixed;
+  position: absolute;
   z-index: 999;
-  top: 100%;
+  top: calc(100% + 2px);
   border-top: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
   border-left: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
   border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
@@ -156,8 +169,20 @@
     transform: scaleY(0);
   }
 
-  80% {
-    transform: scaleY(1.1);
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+.optionListOptionDelayedItem {
+  animation: slideIn 400ms ease-in-out forwards;
+  transform-origin: top left;
+}
+
+
+@keyframes slideIn {
+  0% {
+    transform: scaleY(0);
   }
 
   100% {

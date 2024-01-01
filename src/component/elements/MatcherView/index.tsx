@@ -55,6 +55,7 @@ const MatcherView: React.FC<MatcherViewProps> = ({
 }) => {
   const labelRef = React.useRef<HTMLDivElement | null>(null)
   const [showToopTip, setShowToolTip] = React.useState<boolean>(false)
+  const [deleted, setDeleted] = React.useState<boolean>(false)
   const [showDelete, setShowDelete] = React.useState<boolean>(false)
 
   React.useEffect(() => {
@@ -77,7 +78,10 @@ const MatcherView: React.FC<MatcherViewProps> = ({
     }
   }
   const deleteMatcher = (event: React.MouseEvent) => {
-    onDelete()
+    setDeleted(true)
+    setTimeout(() => {
+      onDelete()
+    }, 500)
     event.stopPropagation()
   }
 
@@ -177,7 +181,7 @@ const MatcherView: React.FC<MatcherViewProps> = ({
           <div
             onMouseEnter={() => setShowToolTip(true)}
             onMouseLeave={() => setShowToolTip(false)}
-            className={'matcherViewContainer'}
+            className={deleted ? 'matcherViewContainerHidden' : 'matcherViewContainer'}
             style={
               'key' in matcher && matcher.source !== ''
                 ? {

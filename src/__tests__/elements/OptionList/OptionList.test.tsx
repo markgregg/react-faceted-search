@@ -6,11 +6,13 @@ import {
 } from '../../../component/state/context'
 import { render } from '@testing-library/react'
 import { testConfig2 } from '@/__tests__/testData'
+import { CategoryOptions } from '@/component/elements/MatcherEdit/MatcherEditFunctions'
 
-const options: [string, Option[]][] = [
-  [
-    'test',
-    [
+
+const options: CategoryOptions[] = [
+  {
+    category: 'test',
+    options: [
       {
         source: 'test',
         value: 'value',
@@ -22,7 +24,7 @@ const options: [string, Option[]][] = [
         text: 'text2',
       },
     ],
-  ],
+  }
 ]
 
 describe('OptionList', () => {
@@ -49,7 +51,7 @@ describe('OptionList', () => {
   it('select active option', () => {
     const result = createOptionList(options, 0)
     result.fireClick('text2', true)
-    expect(selectedOpt).toBe(options[0][1][1])
+    expect(selectedOpt).toBe(options[0].options[1])
   })
 
   it('Hover over active option', () => {
@@ -115,7 +117,7 @@ let selectOperator: string | null = null
 let selectText: Option | null = null
 
 const createOptionList = (
-  options: [string, Option[]][],
+  options: CategoryOptions[],
   activeOption: number | null = null
 ): TestHarness => {
   return createTestHarness(render(

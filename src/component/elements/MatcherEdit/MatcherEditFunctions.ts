@@ -5,11 +5,18 @@ import DataSource, {
 } from '@/component/types/DataSource'
 import { getText, getValue } from '@/component/utils'
 
+export interface CategoryOptions {
+  category: string
+  options: Option[]
+  delayedPromise?: boolean
+}
+
 export const FUNCTIONS_TEXT = 'Functions'
 
 export interface FunctionState {
-  allOptions: [string, Option[]][]
+  allOptions: CategoryOptions[]
   op: 'or' | 'and' | null
+  comparison: string | null
 }
 
 const limitOptions = (
@@ -24,15 +31,15 @@ const limitOptions = (
 }
 
 const getInsertIndex = (
-  allOptions: [string, Option[]][],
+  allOptions: CategoryOptions[],
   ds: DataSource,
   dataSources: DataSource[],
 ): number => {
   if (ds.precedence) {
     const dsp = ds.precedence
     return allOptions.findIndex((item) => {
-      if (item[0] === FUNCTIONS_TEXT) return false
-      const ds2 = dataSources.find((dsc) => dsc.title === item[0])
+      if (item.category === FUNCTIONS_TEXT) return false
+      const ds2 = dataSources.find((dsc) => dsc.title === item.category)
       return dsp > (ds2?.precedence ?? 0)
     })
   }
@@ -56,20 +63,20 @@ export const mapOptions = (
 export const addOptionsPlaceholder = (
   ds: DataSource,
   dsl: DataSourceLookup,
-  allOptions: [string, Option[]][],
+  allOptions: CategoryOptions[],
   defaultItemLimit: number,
   dataSources: DataSource[]
 ) => {
-  if (!allOptions.find(opt => opt[0] === ds.title && opt[1].length > 0)) {
+  if (!allOptions.find(opt => opt.category === ds.title && opt.options.length > 0)) {
     addOptions(allOptions, ds, dsl, [], defaultItemLimit, dataSources)
   }
 }
 
 export const removeOptionsPlaceholder = (
   ds: DataSource,
-  allOptions: [string, Option[]][]
+  allOptions: CategoryOptions[]
 ) => {
-  const index = allOptions.findIndex(opt => opt[0] === ds.title && opt[1].length === 0)
+  const index = allOptions.findIndex(opt => opt.category === ds.title && opt.options.length === 0)
   if (index !== -1) {
     allOptions.splice(index, 1)
     return true
@@ -82,14 +89,15 @@ export const updateOptions = (
   items: SourceItem[],
   ds: DataSource,
   dsl: DataSourceLookup,
-  allOptions: [string, Option[]][],
+  allOptions: CategoryOptions[],
   defaultItemLimit: number,
   dataSources: DataSource[],
+  delayedPromise?: boolean
 ): number => {
   let options: Option[] = mapOptions(items, ds.name, dsl)
   if (options.length > 0) {
     options = limitOptions(dsl, options, defaultItemLimit)
-    addOptions(allOptions, ds, dsl, options, defaultItemLimit, dataSources)
+    addOptions(allOptions, ds, dsl, options, defaultItemLimit, dataSources, delayedPromise)
   }
   return options.length
 }
@@ -113,37 +121,40 @@ const combineOptions = (
 }
 
 export const addOptions = (
-  allOptions: [string, Option[]][],
+  allOptions: CategoryOptions[],
   ds: DataSource,
   dsl: DataSourceLookup,
   options: Option[],
   defaultItemLimit: number,
   dataSources: DataSource[],
+  delayedPromise?: boolean
 ) => {
-  const currentEntry = allOptions.find((entry) => entry[0] === ds.title)
+  const currentEntry = allOptions.find((entry) => entry.category === ds.title)
   if (currentEntry) {
-    currentEntry[1] = combineOptions(
+    currentEntry.delayedPromise = delayedPromise
+    currentEntry.options = combineOptions(
       dsl,
-      currentEntry[1],
+      currentEntry.options,
       options,
       defaultItemLimit,
     )
     return
   }
-  insertOptions(allOptions, ds, options, dataSources)
+  insertOptions(allOptions, ds, options, dataSources, delayedPromise)
 }
 
 export const insertOptions = (
-  allOptions: [string, Option[]][],
+  allOptions: CategoryOptions[],
   ds: DataSource,
   options: Option[],
   dataSources: DataSource[],
+  delayedPromise?: boolean
 ) => {
   const index = getInsertIndex(allOptions, ds, dataSources)
   if (index !== -1) {
-    allOptions.splice(index, 0, [ds.title, options])
+    allOptions.splice(index, 0, { category: ds.title, options, delayedPromise })
   } else {
-    allOptions.push([ds.title, options])
+    allOptions.push({ category: ds.title, options, delayedPromise })
   }
 }
 
@@ -161,23 +172,23 @@ export const matchItems = (
     : actualIem.includes(searchText)
 }
 
-const getPosition = (index: number, options: [string, Option[]][]) => {
+const getPosition = (index: number, options: CategoryOptions[]) => {
   return index === 0
     ? 0
     : options
       .slice(0, index)
-      .map((entry) => entry[1].length)
+      .map((entry) => entry.options.length)
       .reduce((prev, curr) => prev + curr)
 }
 
 export const getCategoryIndex = (
   currentIndex: number,
-  options: [string, Option[]][],
+  options: CategoryOptions[],
   forward = true,
 ) => {
   let count = 0
   const index = options.findIndex((entry) => {
-    const [, opts] = entry
+    const { options: opts } = entry
     const outcome = currentIndex >= count && currentIndex < count + opts.length
     count += opts.length
     return outcome

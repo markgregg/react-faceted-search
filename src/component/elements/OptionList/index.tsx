@@ -4,9 +4,10 @@ import { configContext } from '@/component/state/context'
 import { getText, getValue } from '@/component/utils'
 import { FaCaretDown, FaCaretUp, FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
 import './OptionList.css'
+import { CategoryOptions } from '../MatcherEdit/MatcherEditFunctions';
 
 interface OptionListProps {
-  options: [string, Option[]][]
+  options: CategoryOptions[]
   activeOption: number | null
   onSelectOption: (option: Option, insert: boolean) => void
   onSelectActiveOption: (index: number) => void
@@ -52,7 +53,7 @@ const OptionList: React.FC<OptionListProps> = ({
 
   const updateWidth = (divElement: HTMLDivElement | null, showItems: string | null, header: string) => {
     if (divElement && showItems === header) {
-      setWidth(divElement.clientWidth)
+      setWidth(divElement.clientWidth - 2)
     }
   }
 
@@ -67,25 +68,27 @@ const OptionList: React.FC<OptionListProps> = ({
     if (activeOption !== null) {
       for (let i = 0; i < options.length; i++) {
         if (activeOption >= cnt &&
-          activeOption < (cnt + options[i][1].length)) {
+          activeOption < (cnt + options[i].options.length)) {
           groupIndex = i
           break
         }
-        cnt += options[i][1].length
+        cnt += options[i].options.length
       }
     }
     cnt = 0
+
     return options.map((entry, index) => {
-      const [category, categoryOptions] = entry
+      const { category, options: categoryOptions, delayedPromise } = entry
 
       const homeEnd = index === 0 && (groupIndex !== 0 || groupIndex > 0) ? 'Home' : index === options.length - 1 && (!groupIndex || groupIndex < options.length - 1) ? 'End' : ''
       const pgUpDown = (index + 1 === groupIndex ? 'PgUp' : index - 1 === groupIndex ? 'PgDown' : '')
-      const selectMultiple = index === 0 ? 'Hold Shift to select multiple items' : ''
       const allKeys = (homeEnd !== '' && pgUpDown !== '' ? `${homeEnd} / ${pgUpDown}` : homeEnd !== '' ? homeEnd : pgUpDown)
 
+      if (delayedPromise) {
+        console.log('here')
+      }
       return (
-        <ul key={category}>
-
+        <ul key={category} className={delayedPromise ? 'optionListOptionDelayedItem' : ''}>
           <li className="optionListCategory" style={styles?.optionCategory}>
             {category}
             <i>{
@@ -93,7 +96,6 @@ const OptionList: React.FC<OptionListProps> = ({
                 ? ` (${allKeys})`
                 : ''
             }</i>
-            <span className='optionSelectMultiple'>{selectMultiple}</span>
           </li>
           {
             categoryOptions.length === 0 &&
@@ -173,11 +175,7 @@ const OptionList: React.FC<OptionListProps> = ({
         }
       })
     })
-    return <div
-      style={{
-        maxHeight: config.maxDropDownHeight ?? 210
-      }}
-    >
+    return <div className='staticListContainer' >
       {
         !config.hideHelp &&
         <div className='optionsHelp'>
@@ -243,17 +241,17 @@ const OptionList: React.FC<OptionListProps> = ({
   }
 
   const listStyle = {
-    ...styles?.optionsList,
-    ...(config.maxDropDownHeight
-      ? { maxHeight: config.maxDropDownHeight }
-      : {})
+    ...styles?.optionsList
   }
 
   return (
     <div id="option_list" className="optionListMain" style={listStyle}>
       {
         options.length > 0
-          ? <div className='optionDynamicList' style={{ maxHeight: config.maxDropDownHeight }}>{showOptions()}</div>
+          ? <div className='optionDynamicList' style={{ maxHeight: config.maxDropDownHeight }}>
+            <div className='optionSelectMultiple'>{'Hold Shift to select multiple items'}</div>
+            {showOptions()}
+          </div>
           : showStaticOptions(showSubItems)
       }
 

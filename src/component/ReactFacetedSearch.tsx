@@ -414,7 +414,6 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
               setCurrentMatchers([])
               setActiveMatcher(null)
               setActiveFunction(null)
-              setHasFocus(false)
             }, 10)
           }
         }
