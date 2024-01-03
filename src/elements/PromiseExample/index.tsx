@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {
-  DataSource,
+  Field,
   Matcher,
   SourceItem,
   defaultComparison,
@@ -162,7 +162,7 @@ const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
   )
 
 
-  const dataSource = React.useMemo<DataSource[]>(
+  const field = React.useMemo<Field[]>(
     () => [
       {
         name: 'ISIN',
@@ -460,7 +460,7 @@ const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
       <div className="mainMultiselectContainer">
         <div className="mainMultiselect">
           <ReactFacetedSearch
-            dataSources={dataSource}
+            fields={field}
             {...options}
             comparisonDescriptons={[
               { symbol: '=', description: 'Equals' },

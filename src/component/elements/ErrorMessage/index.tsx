@@ -3,8 +3,8 @@ import { MdClear } from 'react-icons/md'
 import './ErrorMessage.css'
 
 interface ErrorMessageProperties {
-  errorMessage: string | null
-  onErrorAcknowledged: () => void
+  errorMessage: string | null //error message
+  onErrorAcknowledged: () => void //error has been acknowledged
   style?: React.CSSProperties
 }
 

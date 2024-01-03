@@ -45,19 +45,36 @@ const OptionList: React.FC<OptionListProps> = ({
   const activeItemRef = React.useRef<HTMLLIElement | null>(null)
   const config = React.useContext<Config>(configContext)
 
+  //scroll selected item into view
   React.useEffect(() => {
     if (activeItemRef.current && activeItemRef.current.scrollIntoView) {
       activeItemRef.current.scrollIntoView({ block: 'end', behavior: 'smooth' })
     }
   }, [activeOption])
 
-  const updateWidth = (divElement: HTMLDivElement | null, showItems: string | null, header: string) => {
+  /*
+    @param {HTMLDivElement} divElement: current div element
+    @param {string} showItems: shown header
+    @param {string} header: header of item
+  */
+  const updateWidth = (
+    divElement: HTMLDivElement | null,
+    showItems: string | null,
+    header: string
+  ) => {
     if (divElement && showItems === header) {
       setWidth(divElement.clientWidth - 2)
     }
   }
 
-  const selectOption = (event: React.MouseEvent, option: Option) => {
+  /*
+    @param {MouseEvent} event: mouse event
+    @param {Option} option: option to select
+  */
+  const selectOption = (
+    event: React.MouseEvent,
+    option: Option
+  ) => {
     onSelectOption(option, event.shiftKey)
     event.stopPropagation()
   }
@@ -80,6 +97,7 @@ const OptionList: React.FC<OptionListProps> = ({
     return options.map((entry, index) => {
       const { category, options: categoryOptions, delayedPromise } = entry
 
+      //work out what help text to display for home/end/pageup/pagedown
       const homeEnd = index === 0 && (groupIndex !== 0 || groupIndex > 0) ? 'Home' : index === options.length - 1 && (!groupIndex || groupIndex < options.length - 1) ? 'End' : ''
       const pgUpDown = (index + 1 === groupIndex ? 'PgUp' : index - 1 === groupIndex ? 'PgDown' : '')
       const allKeys = (homeEnd !== '' && pgUpDown !== '' ? `${homeEnd} / ${pgUpDown}` : homeEnd !== '' ? homeEnd : pgUpDown)
@@ -133,6 +151,7 @@ const OptionList: React.FC<OptionListProps> = ({
   }
 
   const showStaticOptions = (showItems: string | null) => {
+    //create a list of all items to show
     const items: StaticHeader[] = []
     if (config.functions && config.functions.length > 0) {
       items.push({
@@ -156,8 +175,8 @@ const OptionList: React.FC<OptionListProps> = ({
         items: config.comparisonDescriptions.map(c => { return { text: c.description === '' ? c.symbol : c.description, value: c.symbol, type: 'comparison' } })
       })
     }
-
-    config.dataSources.forEach(ds => {
+    //show static field lists
+    config.fields.forEach(ds => {
       let lastItem: string | null = null
       ds.definitions.forEach(def => {
         if (!ds.hideOnShortcut) {

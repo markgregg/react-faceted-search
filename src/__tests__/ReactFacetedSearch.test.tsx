@@ -1,5 +1,5 @@
 import ReactFacetedSearch from '../component/ReactFacetedSearch'
-import DataSource, { defaultComparison } from '../component/types/DataSource'
+import Field, { defaultComparison } from '../component/types/Field'
 import Matcher from '../component/types/Matcher'
 import { fireEvent, render } from '@testing-library/react'
 import {
@@ -10,7 +10,7 @@ import {
 } from './testData'
 import { TestHarness, createTestHarness, waitForElement } from './TestHarness'
 
-const simpleDataSource: DataSource[] = [
+const simpleField: Field[] = [
   {
     name: 'list',
     title: 'list of strings',
@@ -27,7 +27,7 @@ const simpleDataSource: DataSource[] = [
 
 describe('ReactFacetedSearch', () => {
   it('basic render shows an input box', () => {
-    const result = render(<ReactFacetedSearch dataSources={simpleDataSource} />)
+    const result = render(<ReactFacetedSearch fields={simpleField} />)
     const element = result.container.querySelector('#edit_input')
     expect(element).toHaveValue('')
   })
@@ -380,7 +380,7 @@ const createReactFacetedSearch = (
   updatedMatchers = matchers
   return createTestHarness(render(
     <ReactFacetedSearch
-      dataSources={simpleDataSource}
+      fields={simpleField}
       matchers={matchers}
       onMatchersChanged={m => updatedMatchers = m}
     />,

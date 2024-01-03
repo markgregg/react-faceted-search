@@ -9,25 +9,25 @@ import { matcherDisplay, matcherToolTip } from './MatcherViewFunctions'
 const reactFacetedSearchPrefix = 'multi-select/matcher/'
 
 interface MatcherViewProps {
-  matcher: Matcher | Nemonic
-  onMatcherChanged?: (matcher: Matcher) => void
-  onValidate?: (matcher: Matcher) => string | null
-  onDelete: () => void
-  onSelect?: () => void
-  onCancel?: () => void
-  onSwapMatcher?: (matcher: Matcher, swapMatcher: Matcher) => void
-  onEditPrevious?: () => void
-  onEditNext?: () => void
-  onChanging?: () => void
-  onInsertMatcher?: (matcher: Matcher) => void
-  selected?: boolean
-  first?: boolean
-  hideOperators?: boolean
-  showWarning?: boolean
-  showCategory?: boolean
-  categoryPosition?: 'top' | 'left'
-  hideToolTip?: boolean
-  allowFreeText?: boolean
+  matcher: Matcher | Nemonic //matcher to show
+  onMatcherChanged?: (matcher: Matcher) => void //notify parent matcher has changed
+  onValidate?: (matcher: Matcher) => string | null //ask parent to validate matcher
+  onDelete: () => void //notify parent to delete
+  onSelect?: () => void //notify parent, matcher selected
+  onCancel?: () => void //cancel edit
+  onSwapMatcher?: (matcher: Matcher, swapMatcher: Matcher) => void //request matcher swap
+  onEditPrevious?: () => void //command to parent
+  onEditNext?: () => void //command to parent
+  onChanging?: () => void //notify parent matcher being edited
+  onInsertMatcher?: (matcher: Matcher) => void //request parent edit matcher
+  selected?: boolean //is selected
+  first?: boolean //is first matcher in list
+  hideOperators?: boolean //show operators
+  showWarning?: boolean //show warning
+  showCategory?: boolean //show categories
+  categoryPosition?: 'top' | 'left' //category position
+  hideToolTip?: boolean //hide tool tips
+  allowFreeText?: boolean //allow free text to pasted or entereds
   styles?: ReactFacetedSearchStyles
 }
 
@@ -58,18 +58,23 @@ const MatcherView: React.FC<MatcherViewProps> = ({
   const [deleted, setDeleted] = React.useState<boolean>(false)
   const [showDelete, setShowDelete] = React.useState<boolean>(false)
 
+  //if selected hide tooltips
   React.useEffect(() => {
     if (selected && showToopTip) {
       setShowToolTip(false)
     }
   }, [selected, showToopTip])
 
+  //if selected hide show delete
   React.useEffect(() => {
     if (selected && showDelete) {
       setShowDelete(false)
     }
   }, [selected, showDelete])
 
+  /*
+    @param {boolean} deleting: are we deleting or moving
+  */
   const editPrevious = (deleting: boolean) => {
     if (deleting) {
       onDelete()
@@ -77,6 +82,10 @@ const MatcherView: React.FC<MatcherViewProps> = ({
       onEditPrevious()
     }
   }
+
+  /*
+    @param {React.MouseEvent} event: mouse event
+  */
   const deleteMatcher = (event: React.MouseEvent) => {
     setDeleted(true)
     setTimeout(() => {
@@ -85,6 +94,9 @@ const MatcherView: React.FC<MatcherViewProps> = ({
     event.stopPropagation()
   }
 
+  /*
+    @param {Matcher} update: matcher to update
+  */
   const matcherUpdated = (update: Matcher | null): void => {
     if (update) {
       if (onMatcherChanged) {
@@ -95,6 +107,9 @@ const MatcherView: React.FC<MatcherViewProps> = ({
     }
   }
 
+  /*
+    @param {DragEvent} event: drag event
+  */
   const dragMatcher = (event: React.DragEvent<HTMLDivElement>) => {
 
     if ('key' in matcher) {
@@ -106,6 +121,9 @@ const MatcherView: React.FC<MatcherViewProps> = ({
     }
   }
 
+  /*
+    @param {DragEvent} event: drag event
+  */
   const dragOver = (event: React.DragEvent<HTMLDivElement>) => {
     if ('key' in matcher) {
       if (
@@ -117,6 +135,9 @@ const MatcherView: React.FC<MatcherViewProps> = ({
     }
   }
 
+  /*
+    @param {DragEvent} event: drag event
+  */
   const dropMatcher = (event: React.DragEvent<HTMLDivElement>) => {
     if ('key' in matcher) {
       const dataType = event.dataTransfer.types.find((type) =>

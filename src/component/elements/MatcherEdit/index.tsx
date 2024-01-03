@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Matcher, Option, Config, Selection, DataSource } from '../../types'
+import { Matcher, Option, Config, Selection, Field } from '../../types'
 import {
   hasFocusContext,
   configContext,
@@ -23,28 +23,25 @@ import {
   updateOptions,
 } from './MatcherEditFunctions'
 import './MatcherEdit.css'
-import { DataSourceLookup, DataSourceValue, PromiseLookup } from '@/component/types/DataSource'
+import { FieldLookup, FieldValue, PromiseLookup } from '@/component/types/Field'
 
 interface MatcherEditProps {
-  matcher?: Matcher
-  onMatcherChanged: (matcher: Matcher | null) => void
-  onValidate?: (matcher: Matcher) => string | null
-  onFocus?: () => void
-  onCancel?: () => void
-  onEditPrevious: (deleting: boolean) => void
-  onEditNext?: () => void
-  onChanging?: () => void
-  onInsertMatcher?: (matcher: Matcher) => void
-  onSetActiveFunction?: (activeFunction: Nemonic) => void
-  onDeleteActiveFunction?: () => void
-  first: boolean
-  allowFunctions?: boolean
-  allowFreeText?: boolean
-  styles?: ReactFacetedSearchStyles
+  matcher?: Matcher  //matcher to edit if contained in a view
+  onMatcherChanged: (matcher: Matcher | null) => void //notify that the matcher has changed
+  onValidate?: (matcher: Matcher) => string | null //request for parent to validate
+  onFocus?: () => void //has focus
+  onCancel?: () => void //cancel editing
+  onEditPrevious: (deleting: boolean) => void  //command to parent
+  onEditNext?: () => void //command to parent
+  onChanging?: () => void //notify parent the matcher is changing
+  onInsertMatcher?: (matcher: Matcher) => void //insert a matcher
+  onSetActiveFunction?: (activeFunction: Nemonic) => void //set a function as the active function
+  onDeleteActiveFunction?: () => void //delete active function
+  first: boolean //is the match the first
+  allowFunctions?: boolean //allow functions 
+  allowFreeText?: boolean //allow free text
+  styles?: ReactFacetedSearchStyles //styles
 }
-
-
-
 
 const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
   (props, ref) => {
@@ -92,7 +89,18 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
     const controlHasFocus = React.useContext<boolean>(hasFocusContext)
     const selection = React.useContext<Selection>(selectionContext)
 
-    const setTextLine = (op: string | null = null, comp: string | null = null, option: Option | null = null, funcName: string | null = null) => {
+    /*
+          @param {string} op: operator to set input
+          @param {string} comp: comparison to set input
+          @param {Option} option: text option to set input
+          @param {string} funcName: function to set input
+        */
+    const setTextLine = (
+      op: string | null = null,
+      comp: string | null = null,
+      option: Option | null = null,
+      funcName: string | null = null
+    ) => {
       let line = ''
       if (funcName) {
         const func = config.functions?.find(
@@ -121,6 +129,8 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
         handleTextChange(line)
       }
     }
+
+    //if we have an input ref and control has focus, set input focus
     React.useEffect(() => {
       if (inputRef.current && controlHasFocus) {
         inputRef.current.focus()
@@ -131,12 +141,14 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       setError(null)
     }, [first])
 
+    //if text is blank, then remove active option
     React.useEffect(() => {
       if (text.length === 0) {
         setActiveOption(null)
       }
     }, [text])
 
+    //reset state
     const resetEdit = () => {
       setText('')
       setOperator(null)
@@ -147,10 +159,15 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       setActiveOption(null)
     }
 
+    /*
+      @param {newText} searchText: text from the input minus comparion and operator
+      @param {FunctionState} functionState: current function state
+    */
     const checkForOperator = (
       searchText: string,
       functionState: FunctionState,
     ): string => {
+      //cehcks for and/or
       if (searchText.length > 2) {
         const symbol = searchText.substring(0, 3)
         if (symbol === 'and') {
@@ -176,8 +193,16 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       return searchText
     }
 
-    const checkForComparison = (searchText: string, funtionState: FunctionState): string | null => {
+    /*
+      @param {newText} searchText: text from the input minus comparion and operator
+      @param {FunctionState} functionState: current function state
+    */
+    const checkForComparison = (
+      searchText: string,
+      funtionState: FunctionState
+    ): string | null => {
       if (searchText.length > 1) {
+        //if serach text greater than 1 character, check for 2 charater comparisons
         const symbolPair = searchText.substring(0, 2)
         if (config.comparisons.includes(symbolPair)) {
           setComparison(symbolPair)
@@ -185,12 +210,14 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
           return searchText.substring(2).trim()
         }
       }
+      //if no 2 character matches, assume it is a 1 character comparison
       const symbol = searchText[0]
       if (
         config.operators === 'Complex' &&
         (!selection.activeFunction || !selection.activeFunction.noBrackets) &&
         (symbol === '(' || symbol === ')')
       ) {
+        //if the type is complex and barackets supported check for brackets
         if (matcher && onInsertMatcher && matcher.operator !== symbol) {
           const newMatcher: Matcher = {
             key: guid(),
@@ -206,6 +233,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
         }
         return null
       }
+      //check for 1 character comparisons
       if (config.comparisons.includes(symbol)) {
         setComparison(symbol)
         funtionState.comparison = symbol
@@ -214,11 +242,77 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       return searchText
     }
 
+    /*
+      @param {newText} searchText: text from the input minus comparion and operator
+      @param {string} currentKey: key of the current render loop
+      @param {FunctionState} functionState: current function state
+    */
+    const buildFieldOptions = (
+      searchText: string,
+      currentKey: string,
+      functionState: FunctionState,
+    ) => {
+      //check that the text length is greater than the defualt mininum seearch length
+      if (searchText.length >= (config.searchStartLength ?? 0)) {
+        //if we support functions check if we have function matches
+        if (allowFunctions && config.functions) {
+          buildFunctionOptions(
+            searchText,
+            config.functions,
+            functionState,
+          )
+        }
+        //loop the field definitions
+        config.fields.forEach((ds) => {
+          //if a function is active, only allow fields for functions
+          //check that field supports current comparison
+          if (
+            ((!selection.activeFunction && !ds.functional) ||
+              (selection.activeFunction &&
+                (selection.activeFunction.requiredFields?.includes(
+                  ds.name,
+                ) ||
+                  selection.activeFunction.optionalFields?.includes(
+                    ds.name,
+                  )))) &&
+            (!functionState.comparison || ds.comparisons.includes(functionState.comparison))
+          ) {
+            ds.definitions.forEach((vm) => {
+              if ('source' in vm) {
+                //is field a source type (promise/list)
+                buildListOptions(
+                  searchText,
+                  ds,
+                  vm,
+                  currentKey,
+                  functionState,
+                )
+              } else {
+                //or a value type (regex/function)
+                buildExpressionOptions(
+                  searchText,
+                  ds,
+                  vm,
+                  currentKey,
+                  functionState,
+                )
+              }
+            })
+          }
+        })
+      }
+    }
+
+    /*
+      @param {newText} searchText: text from the input minus comparion and operator
+      @param {string} currentKey: key of the current render loop
+      @param {FunctionState} functionState: current function state
+    */
     const buildOptions = (
       newText: string,
       currentKey: string,
       functionState: FunctionState,
-    ) => {
+    ): string => {
       if (newText.length > 0) {
         let result: string | null = newText.trim()
         if (result.length > 0 && result[0] !== '"') {
@@ -230,60 +324,27 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
           }
           result = checkForComparison(result, functionState)
           setMatchText(result)
+          //if result is null or 0 then stop - if a bracket has been inserted
           if (result !== null && result.length > 0) {
-            const searchText = result
-            if (searchText.length >= (config.searchStartLength ?? 0)) {
-              if (allowFunctions && config.functions) {
-                buildFunctionOptions(
-                  searchText,
-                  config.functions,
-                  functionState,
-                )
-              }
-              config.dataSources.forEach((ds) => {
-                if (
-                  ((!selection.activeFunction && !ds.functional) ||
-                    (selection.activeFunction &&
-                      (selection.activeFunction.requiredDataSources?.includes(
-                        ds.name,
-                      ) ||
-                        selection.activeFunction.optionalDataSources?.includes(
-                          ds.name,
-                        )))) &&
-                  (!functionState.comparison || ds.comparisons.includes(functionState.comparison))
-                ) {
-                  ds.definitions.forEach((vm) => {
-                    if ('source' in vm) {
-                      buildListOptions(
-                        searchText,
-                        ds,
-                        vm,
-                        currentKey,
-                        functionState,
-                      )
-                    } else {
-                      buildExpressionOptions(
-                        searchText,
-                        ds,
-                        vm,
-                        currentKey,
-                        functionState,
-                      )
-                    }
-                  })
-                }
-              })
-            }
+            buildFieldOptions(result, currentKey, functionState)
+            return newText
           }
         }
       }
+      return '' //we have no text so update input to match
     }
 
+    /*
+      @param {string} searchText: text from the input minus comparion and operator
+      @param {numomics} Nemonic: function nemonics
+      @param {FunctionState} functionState: current function state
+    */
     const buildFunctionOptions = (
       searchText: string,
       numomics: Nemonic[],
       functionState: FunctionState,
     ) => {
+      //add options for any functions that match the search text
       const functions = numomics
         .filter((func) =>
           func.name.toUpperCase().includes(searchText.toUpperCase()),
@@ -300,67 +361,112 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       }
     }
 
+    /*
+      @param {string} searchText: text from the input minus comparion and operator
+      @param {PromiseLookup} promise: promise to call
+      @param {Field} ds: field in which to search for options
+      @param {FieldLookup} dsl: value definition in which to search for options
+      @param {string} currentKey: key of the current render loop
+      @param {FunctionState} functionState: current function state
+    */
+    const buildPromiseOptions = (
+      searchText: string,
+      promise: PromiseLookup,
+      ds: Field,
+      dsl: FieldLookup,
+      currentKey: string,
+      functionState: FunctionState,
+    ) => {
+      //set a timer, this enables us to buffer calls
+      setTimeout(() => {
+        //if the current key does not match reference key, ignore. This allows only the last promise to run
+        //so if someone types before the promise delay is over, the promise will be ignore.
+        //It reduces the promise calls to the server to a mininum
+        if (currentKey === key.current) {
+          //if the option to show when searching is on, show a place holder in the dropdown list
+          if (config.showWhenSearching) {
+            addOptionsPlaceholder(
+              ds,
+              dsl,
+              functionState.allOptions,
+              config.defaultItemLimit,
+              config.fields
+            )
+            updateState(functionState)
+          }
+          const pStart = Date.now()
+          promise(searchText, functionState.op, selection.matchers.filter(m => m.key !== matcher?.key))
+            .then((items) => {
+              //check that the key is current else ignore the promise
+              if (currentKey === key.current) {
+                const elapses = Date.now() - pStart
+                if (items.length > 0) {
+                  //if we have options then update
+                  updateOptions(
+                    items,
+                    ds,
+                    dsl,
+                    functionState.allOptions,
+                    config.defaultItemLimit,
+                    config.fields,
+                    elapses > 500 && true //if the promise took longer than 500ms animate the appearance
+                  )
+                  updateState(functionState)
+                  //if we have animatged the appearance, remove animation after it has completed.
+                  elapses > 500 && setTimeout(() => {
+                    //check that the user has typed text since the timer
+                    if (currentKey === key.current) {
+                      functionState.allOptions.forEach(fs => {
+                        if (fs.category === ds.title) {
+                          fs.delayedPromise = false
+                        }
+                      })
+                      updateState(functionState)
+                    }
+                  }, 400)
+                } else if (config.showWhenSearching) {
+                  //if we haven't processed the promise, remove the placeholder
+                  if (removeOptionsPlaceholder(
+                    ds,
+                    functionState.allOptions
+                  )) {
+                    updateState(functionState)
+                  }
+                }
+              }
+            })
+        }
+      }, config.promiseDelay ?? 1)
+    }
+
+    /*
+      @param {string} searchText: text from the input minus comparion and operator
+      @param {Field} ds: field in which to search for options
+      @param {FieldLookup} dsl: value definition in which to search for options
+      @param {string} currentKey: key of the current render loop
+      @param {FunctionState} functionState: current function state
+    */
     const buildListOptions = (
       searchText: string,
-      ds: DataSource,
-      dsl: DataSourceLookup,
+      ds: Field,
+      dsl: FieldLookup,
       currentKey: string,
       functionState: FunctionState,
     ) => {
       if (searchText.length >= (dsl.searchStartLength ?? 0)) {
         if (typeof dsl.source === 'function') {
+          //if source is a function then call the promise
           const promise = dsl.source as PromiseLookup
-          setTimeout(() => {
-            if (currentKey === key.current) {
-              if (config.showWhenSearching) {
-                addOptionsPlaceholder(
-                  ds,
-                  dsl,
-                  functionState.allOptions,
-                  config.defaultItemLimit,
-                  config.dataSources
-                )
-                updateState(functionState)
-              }
-              const pStart = Date.now()
-              promise(searchText, functionState.op, selection.matchers.filter(m => m.key !== matcher?.key))
-                .then((items) => {
-                  if (currentKey === key.current) {
-                    const elapses = Date.now() - pStart
-                    if (items.length > 0) {
-                      updateOptions(
-                        items,
-                        ds,
-                        dsl,
-                        functionState.allOptions,
-                        config.defaultItemLimit,
-                        config.dataSources,
-                        elapses > 500 && true
-                      )
-                      updateState(functionState)
-                      elapses > 500 && setTimeout(() => {
-                        if (currentKey === key.current) {
-                          functionState.allOptions.forEach(fs => {
-                            if (fs.category === ds.title) {
-                              fs.delayedPromise = false
-                            }
-                          })
-                          updateState(functionState)
-                        }
-                      }, 400)
-                    } else if (config.showWhenSearching) {
-                      if (removeOptionsPlaceholder(
-                        ds,
-                        functionState.allOptions
-                      )) {
-                        updateState(functionState)
-                      }
-                    }
-                  }
-                })
-            }
-          }, config.promiseDelay ?? 1)
+          buildPromiseOptions(
+            searchText,
+            promise,
+            ds,
+            dsl,
+            currentKey,
+            functionState
+          )
         } else {
+          //if current key matches the reference key (set in current render loop) then process list options
           if (currentKey === key.current) {
             const items = dsl.source.filter((item) =>
               matchItems(item, dsl, searchText),
@@ -372,7 +478,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
                 dsl,
                 functionState.allOptions,
                 config.defaultItemLimit,
-                config.dataSources,
+                config.fields,
               )
             }
           }
@@ -380,14 +486,22 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       }
     }
 
+    /*
+      @param {string} searchText: text from the input minus comparion and operator
+      @param {Field} ds: field in which to search for options
+      @param {Field} dsv: value definition in which to search for options
+      @param {string} currentKey: key of the current render loop
+      @param {FunctionState} functionState: current function state
+    */
     const buildExpressionOptions = (
       searchText: string,
-      ds: DataSource,
-      dsv: DataSourceValue,
+      ds: Field,
+      dsv: FieldValue,
       currentKey: string,
       functionState: FunctionState,
     ) => {
       if (
+        // expression or value match
         ((dsv.match instanceof RegExp && searchText.match(dsv.match)) ||
           (typeof dsv.match === 'function' && dsv.match(searchText))) &&
         currentKey === key.current
@@ -397,35 +511,44 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
           functionState.allOptions,
           ds,
           [{ source: ds.name, value, text: value.toString() }],
-          config.dataSources,
+          config.fields,
         )
       }
     }
 
+    /*
+      @param {string} newText: text from the input control
+    */
     const handleTextChange = (newText: string) => {
+      //set state items to null
       setOperator(null)
       setComparison(null)
       setMatchText(null)
 
       if (!notifiedChanging && matcher) {
+        //notify parent the edit element is being edited
         setNotifiedChaning(true)
         if (onChanging) {
           onChanging()
         }
       }
-      const currentKey = guid()
-      key.current = currentKey
-      const functionState: FunctionState = {
+      const currentKey = guid() // generate a unique key
+      key.current = currentKey // set the key into the reference (outside of the render loop)
+      const functionState: FunctionState = { //create a function state object used to pass state between functions
         allOptions: [],
         op: null,
         comparison: null
       }
-      buildOptions(newText, currentKey, functionState)
-      setText(newText)
-      updateState(functionState)
+      const updateText = buildOptions(newText, currentKey, functionState) //build options
+      setText(updateText) //update the input field
+      updateState(functionState) //update the options set via static lists or expressions
     }
 
+    /*
+      @param {FunctionState} functionState: current function state
+    */
     const updateState = (functionState: FunctionState) => {
+      //updates the options from the function state
       const { allOptions } = functionState
       setOptions(allOptions)
       let totalCount = 0
@@ -440,6 +563,9 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       }
     }
 
+    /*
+      @param {React.KeyboardEvent<HTMLInputElement>} event: keybord event
+    */
     const handleDeleteKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (onEditPrevious && !event.shiftKey && !event.ctrlKey) {
         if (first && onDeleteActiveFunction) {
@@ -468,6 +594,9 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       return true
     }
 
+    /*
+      @param {React.KeyboardEvent<HTMLInputElement>} event: keybord event
+    */
     const handleOptionSelection = (
       event: React.KeyboardEvent<HTMLInputElement>,
     ) => {
@@ -570,6 +699,9 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       return true
     }
 
+    /*
+      @param {React.KeyboardEvent<HTMLInputElement>} event: keybord event
+    */
     const arrowRight = (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (
         inputRef.current &&
@@ -585,6 +717,9 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       return false
     }
 
+    /*
+      @param {React.KeyboardEvent<HTMLInputElement>} event: keybord event
+    */
     const arrowLeft = (event: React.KeyboardEvent<HTMLInputElement>) => {
       if (
         inputRef.current &&
@@ -598,6 +733,9 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       return false
     }
 
+    /*
+      @param {React.KeyboardEvent<HTMLInputElement>} event: keybord event
+    */
     const keyPressed = (event: React.KeyboardEvent<HTMLInputElement>) => {
       let stopPropagation = false
       setError(null)
@@ -650,8 +788,12 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       }
     }
 
-    const validateOperator = (option: Option): string | null => {
-      const ds = config.dataSources.find((d) => d.name === option.source)
+    /*
+      @param {Option>} option: option to validate
+    */
+    const validateComparison = (option: Option): string | null => {
+      //validates that the comparison is valid for the option
+      const ds = config.fields.find((d) => d.name === option.source)
       if (ds) {
         if (comparison !== null && !ds.comparisons.includes(comparison)) {
           const idx = text.indexOf(comparison)
@@ -665,9 +807,13 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       return null
     }
 
+    /*
+      @param {Option>} option: option to validate
+    */
     const validate = (option?: Option | '(' | ')'): Matcher | null | false => {
+      //validate comparison
       if (option !== '(' && option !== ')' && option) {
-        const err = validateOperator(option)
+        const err = validateComparison(option)
         if (err) {
           setError(err)
           return false
@@ -684,6 +830,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
         }
         : null
       if (newMatcher && onValidate) {
+        //call parent to validate in the context of the other matchers
         const err = onValidate(newMatcher)
         if (err) {
           setError(err)
@@ -693,6 +840,9 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       return newMatcher
     }
 
+    /*
+      @param {Option>} option: option to insert
+    */
     const insertMatcher = (option?: Option | '(' | ')') => {
       const newMatcher = validate(option)
       if (newMatcher !== false && newMatcher !== null && onInsertMatcher) {
@@ -700,6 +850,9 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       }
     }
 
+    /*
+      @param {Option>} option: option to select
+    */
     const selectOption = (option?: Option | '(' | ')') => {
       const newMatcher = validate(option)
       if (newMatcher !== false) {

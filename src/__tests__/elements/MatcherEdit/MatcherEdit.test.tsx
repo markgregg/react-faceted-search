@@ -12,7 +12,7 @@ import {
   openBracket,
   singleMatcher,
   testConfig,
-  testDataSources,
+  testFields,
 } from '../../testData'
 import { Config } from '@/component/types'
 import { TestHarness, createTestHarness, waitForElement } from '@/__tests__/TestHarness'
@@ -184,7 +184,7 @@ describe('MatcherEdit', () => {
   it('test simple operations', async () => {
     const result = createMatcherEdit(false, singleMatcher[0], {
       config: {
-        dataSources: testDataSources,
+        fields: testFields,
         defaultComparison: '=',
         and: '&',
         or: '|',
@@ -213,7 +213,7 @@ describe('MatcherEdit', () => {
   it('test open bracket', async () => {
     const result = createMatcherEdit(false, openBracket, {
       config: {
-        dataSources: testDataSources,
+        fields: testFields,
         defaultComparison: '=',
         and: '&',
         or: '|',
@@ -242,7 +242,7 @@ describe('MatcherEdit', () => {
   it('test close bracket', async () => {
     const result = createMatcherEdit(false, closeBracket, {
       config: {
-        dataSources: testDataSources,
+        fields: testFields,
         defaultComparison: '=',
         and: '&',
         or: '|',

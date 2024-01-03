@@ -1,4 +1,4 @@
-import DataSource from './DataSource'
+import Field from './Field'
 import Nemonic from './Nemonic'
 
 export type OperatorDisplay = 'Names' | 'Symbols'
@@ -8,19 +8,19 @@ export interface ComparisonItem {
 }
 
 export default interface Config {
-  dataSources: DataSource[]
-  functions?: Nemonic[]
-  defaultComparison: string
-  and: string
-  or: string
-  comparisons: string[]
-  comparisonDescriptions: ComparisonItem[]
-  defaultItemLimit: number
-  operators: 'Simple' | 'AgGrid' | 'Complex'
-  operatorDisplay?: OperatorDisplay
-  maxDropDownHeight?: number
-  searchStartLength?: number
-  promiseDelay?: number
-  hideHelp?: boolean
-  showWhenSearching?: boolean
+  fields: Field[] //active fields
+  functions?: Nemonic[] //active nemonics
+  defaultComparison: string //default comparison, usually =
+  and: string //and symbol
+  or: string //or symbol
+  comparisons: string[] //available comparisons (used across all fields)
+  comparisonDescriptions: ComparisonItem[] //descriptions of comparions
+  defaultItemLimit: number //default limit for items
+  operators: 'Simple' | 'AgGrid' | 'Complex' //opertor complexity (and, and/or, and/or/bracket)
+  operatorDisplay?: OperatorDisplay // show opertor names or symbols
+  maxDropDownHeight?: number //maximium heigt of dropdown
+  searchStartLength?: number //min characters before search starts
+  promiseDelay?: number //delay before issuing promises to server
+  hideHelp?: boolean //hide help
+  showWhenSearching?: boolean //show placeholders when searching
 }

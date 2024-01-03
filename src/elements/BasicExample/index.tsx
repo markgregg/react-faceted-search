@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {
-  DataSource,
+  Field,
   Matcher,
   Nemonic,
   SourceItem,
@@ -229,8 +229,8 @@ const BasicExample: React.FC<BasicExampleProps> = ({ options }) => {
       {
         name: 'Interest',
         pasteFreeTextAction: 'Combined',
-        requiredDataSources: ['Client', 'Side'],
-        optionalDataSources: [
+        requiredFields: ['Client', 'Side'],
+        optionalFields: [
           'Coupon',
           'Size',
           'MaturityDate',
@@ -243,7 +243,7 @@ const BasicExample: React.FC<BasicExampleProps> = ({ options }) => {
     [],
   )
 
-  const dataSource = React.useMemo<DataSource[]>(
+  const field = React.useMemo<Field[]>(
     () => [
       {
         name: 'ISIN',
@@ -589,7 +589,7 @@ const BasicExample: React.FC<BasicExampleProps> = ({ options }) => {
       <div className="mainMultiselectContainer">
         <div className="mainMultiselect">
           <ReactFacetedSearch
-            dataSources={dataSource}
+            fields={field}
             functions={functions}
             onComplete={handleAction}
             onCompleteError={(func, missing) =>

@@ -1,12 +1,12 @@
 import Config, { OperatorDisplay } from './Config'
-import DataSource, {
-  DataSourceLookup,
-  DataSourceValue,
+import Field, {
+  FieldLookup,
+  FieldValue,
   SourceItem,
   defaultComparison,
   stringComparisons,
   numberComparisons,
-} from './DataSource'
+} from './Field'
 import Matcher, { Value } from './Matcher'
 import ReactFacetedSearchStyles from './ReactFacetedSearchStyles'
 import Option, { FUNC_ID } from './Opton'
@@ -15,9 +15,9 @@ import Selection from './Selection'
 
 export type {
   Config,
-  DataSource,
-  DataSourceLookup,
-  DataSourceValue,
+  Field,
+  FieldLookup,
+  FieldValue,
   Matcher,
   ReactFacetedSearchStyles,
   Option,

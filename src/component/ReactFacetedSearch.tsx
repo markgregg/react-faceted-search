@@ -1,9 +1,9 @@
 import * as React from 'react'
 import {
   Config,
-  DataSource,
-  DataSourceLookup,
-  DataSourceValue,
+  Field,
+  FieldLookup,
+  FieldValue,
   Matcher,
   ReactFacetedSearchStyles,
   Option,
@@ -38,42 +38,42 @@ import './ReactFacetedSearch.css'
 import { ComparisonItem } from './types/Config'
 
 interface ReactFacetedSearchProps {
-  matchers?: Matcher[]
-  dataSources: DataSource[]
-  functions?: Nemonic[]
-  defaultComparison?: string
-  comparisonDescriptons?: ComparisonItem[]
-  and?: string
-  or?: string
-  defaultItemLimit?: number
-  operators?: 'Simple' | 'AgGrid' | 'Complex'
-  onMatchersChanged?: (matchers: Matcher[]) => void
-  onComplete?: (matchers: Matcher[], func?: string) => void
-  onCompleteError?: (
+  matchers?: Matcher[] //when managed, the matchers
+  fields: Field[] //available fields
+  functions?: Nemonic[] //available functions
+  defaultComparison?: string //default comparison
+  comparisonDescriptons?: ComparisonItem[] //compairson descriptions to display 
+  and?: string //and symbol
+  or?: string //or symbol
+  defaultItemLimit?: number //default item limit
+  operators?: 'Simple' | 'AgGrid' | 'Complex' //and, and/or, and/or/brackets
+  onMatchersChanged?: (matchers: Matcher[]) => void //when managed notifies matchers changed
+  onComplete?: (matchers: Matcher[], func?: string) => void //when unmanaged fired by hitting return
+  onCompleteError?: ( //if there is an error with a function
     func: string,
     errorMessage: string,
     missingFields?: string[],
   ) => void
-  clearIcon?: React.ReactElement
-  maxDropDownHeight?: number
-  searchStartLength?: number
-  showCategories?: boolean
-  categoryPosition?: 'top' | 'left'
-  hideToolTip?: boolean
-  allowFreeText?: boolean
-  pasteMatchTimeout?: number
-  pasteFreeTextAction?: FreTextFunc
-  promiseDelay?: number
-  showWhenSearching?: boolean
-  hideHelp?: boolean
-  styles?: ReactFacetedSearchStyles
+  clearIcon?: React.ReactElement //clear item
+  maxDropDownHeight?: number //max height of dropdown list
+  searchStartLength?: number //number of characters before search starts
+  showCategories?: boolean //show categories
+  categoryPosition?: 'top' | 'left' //category position
+  hideToolTip?: boolean //hide tooltips
+  allowFreeText?: boolean //allow free text
+  pasteMatchTimeout?: number //timeout for matching items when pasting
+  pasteFreeTextAction?: FreTextFunc //how to handle free text when pasted
+  promiseDelay?: number //delay before firing promise, used to reduce server calls
+  showWhenSearching?: boolean //show placholder when searching
+  hideHelp?: boolean //hide help
+  styles?: ReactFacetedSearchStyles //element styles
 }
-const comparisonsFromDataSources = (dataSources: DataSource[]): string[] => {
-  return dataSources.flatMap((ds) => ds.comparisons).filter(isUnique)
+const comparisonsFromFields = (fields: Field[]): string[] => {
+  return fields.flatMap((ds) => ds.comparisons).filter(isUnique)
 }
 
-const comparisonsDescriptionsFromDataSources = (dataSources: DataSource[]): ComparisonItem[] => {
-  return dataSources.flatMap((ds) => ds.comparisons).filter(isUnique).map(symbol => { return { symbol, description: '' } })
+const comparisonsDescriptionsFromFields = (fields: Field[]): ComparisonItem[] => {
+  return fields.flatMap((ds) => ds.comparisons).filter(isUnique).map(symbol => { return { symbol, description: '' } })
 }
 
 const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
@@ -82,7 +82,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   comparisonDescriptons,
   and,
   or,
-  dataSources,
+  fields,
   functions,
   defaultItemLimit,
   operators,
@@ -117,16 +117,15 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   const [activeFunction, setActiveFunction] = React.useState<Nemonic | null>(
     null,
   )
-
   const config = React.useMemo<Config>(() => {
     return {
-      dataSources,
+      fields,
       functions,
       defaultComparison: defaultComparison ?? '=',
       and: and ?? '&',
       or: or ?? '|',
-      comparisons: comparisonsFromDataSources(dataSources),
-      comparisonDescriptions: comparisonDescriptons ?? comparisonsDescriptionsFromDataSources(dataSources),
+      comparisons: comparisonsFromFields(fields),
+      comparisonDescriptions: comparisonDescriptons ?? comparisonsDescriptionsFromFields(fields),
       defaultItemLimit: defaultItemLimit ?? ITEM_LIMIT,
       operators: operators ?? 'Complex',
       maxDropDownHeight,
@@ -136,7 +135,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
       hideHelp
     }
   }, [
-    dataSources,
+    fields,
     functions,
     defaultComparison,
     comparisonDescriptons,
@@ -159,6 +158,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     }
   }, [matchers])
 
+  //when user clicks away loose focus and hide active matcher
   const clickedAway = React.useCallback(() => {
     setHasFocus(false)
     setActiveMatcher(null)
@@ -182,15 +182,21 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     }
   }
 
-  const notifyMatchersChanged = (matchers: Matcher[]) => {
+  /*
+    @param {Matcher} matchers: when managed, calls the onchanged function
+  */
+  const notifyMatchersChanged = (
+    matchers: Matcher[]
+  ) => {
     if (onMatchersChanged) {
       onMatchersChanged(matchers)
     }
   }
 
   const validateFunction = (): boolean => {
-    if (activeFunction?.requiredDataSources) {
-      const missing = activeFunction.requiredDataSources.filter(
+    //validates the active function to ensure it has rquried fields
+    if (activeFunction?.requiredFields) {
+      const missing = activeFunction.requiredFields.filter(
         (ds) => !currentMatchers.find((m) => m.source === ds),
       )
       if (missing.length > 0) {
@@ -216,7 +222,12 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     return true
   }
 
-  const validateBrackets = (newMatchers: Matcher[]) => {
+  /*
+    @param {Matcher[]} newMatchers: validates that all brackets match
+  */
+  const validateBrackets = (
+    newMatchers: Matcher[]
+  ) => {
     const missingBracketIndexes: number[] = []
     const brackets = newMatchers.map((m) => m.comparison)
     checkBracket(brackets, missingBracketIndexes, true)
@@ -224,13 +235,24 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     setMismatchedBrackets(missingBracketIndexes)
   }
 
-  const updatedMatchers = (newMatchers: Matcher[]) => {
+  /*
+    @param {Matcher[]} newMatchers: matchers to update
+  */
+  const updatedMatchers = (
+    newMatchers: Matcher[]
+  ) => {
+    //updates the matchers, notifies the parent and checks brackets
     setCurrentMatchers(newMatchers)
     notifyMatchersChanged(newMatchers)
     validateBrackets(newMatchers)
   }
 
-  const updateMatcher = (matcher: Matcher): void => {
+  /*
+    @param {Matcher} matchers: matcher to update
+  */
+  const updateMatcher = (
+    matcher: Matcher
+  ): void => {
     const newMatchers = currentMatchers.map((mat) =>
       mat.key === matcher.key ? matcher : mat,
     )
@@ -239,6 +261,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   }
 
   const deleteLast = () => {
+    //deletes last matcher
     if (currentMatchers.length > 0) {
       deleteMatcher(currentMatchers[currentMatchers.length - 1])
     } else if (activeFunction != null) {
@@ -253,6 +276,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   }
 
   const editLast = () => {
+    //sets the last matcher as the active item
     if (currentMatchers.length > 0) {
       if (activeMatcher === null) {
         setActiveMatcher(currentMatchers.length - 1)
@@ -274,24 +298,39 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     }
   }
 
-  const deleteMatcher = (matcher: Matcher, forceClearActivematcher = false) => {
+  /*
+    @param {Matcher} matcher: matcher to delete
+    @param {boolean} forceClearActiveMatcher: clear active matcher
+  */
+  const deleteMatcher = (
+    matcher: Matcher,
+    forceClearActiveMatcher = false
+  ) => {
     const newMatchers = currentMatchers.filter((mat) => mat.key !== matcher.key)
     updatedMatchers(newMatchers)
     if (
       activeMatcher !== null &&
-      (forceClearActivematcher || activeMatcher > currentMatchers.length - 1)
+      (forceClearActiveMatcher || activeMatcher > currentMatchers.length - 1)
     ) {
       clearActiveMatcher()
     }
   }
 
-  const addMatcher = (matcher: Matcher | null): void => {
+  /*
+    @param {Matcher} matcher: matcher to add
+  */
+  const addMatcher = (
+    matcher: Matcher | null
+  ): void => {
     if (matcher) {
       const newMatchers = [...currentMatchers, matcher]
       updatedMatchers(newMatchers)
     }
   }
 
+  /*
+    @param {number} index: index of matcher to select
+  */
   const selectMatcher = (index: number) => {
     if (!hasFocus) {
       setHasFocus(true)
@@ -301,7 +340,14 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     }
   }
 
-  const swapMatchers = (matcher: Matcher, swapMatcher: Matcher) => {
+  /*
+    @param {Matcher} matcher: matcher to swap
+    @param {Matcher} swapMatcher: matcher to swap with
+  */
+  const swapMatchers = (
+    matcher: Matcher,
+    swapMatcher: Matcher
+  ) => {
     const idx1 = currentMatchers.findIndex((mtch) => mtch.key === matcher.key)
     const idx2 = currentMatchers.findIndex(
       (mtch) => mtch.key === swapMatcher.key,
@@ -318,7 +364,13 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     }
   }
 
-  const matcherChanging = (matcher: Matcher) => {
+  /*
+    @param {Matcher} matcher: matcher that is changing
+  */
+  const matcherChanging = (
+    matcher: Matcher
+  ) => {
+    //stiops the current matcher from being used to filter
     setInEdit(true)
     notifyMatchersChanged(
       currentMatchers.map((m) => {
@@ -332,6 +384,10 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     )
   }
 
+  /*
+    @param {Matcher} matcher: matcher to insert
+    @param {currentMatcher} matcher to insert before
+  */
   const insertMatcher = (
     newMatcher: Matcher,
     currentMatcher: Matcher | null,
@@ -350,7 +406,12 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     }
   }
 
-  const handleKeyPress = (event: React.KeyboardEvent) => {
+  /*
+    @param {KeyboardEvent} keyboard event
+  */
+  const handleKeyPress = (
+    event: React.KeyboardEvent
+  ) => {
     switch (event.code) {
       case 'ArrowLeft':
         if (event.shiftKey) {
@@ -437,12 +498,17 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     }
   }
 
-  const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+  /*
+    @param {ClipboardEvent} event: clipboard event
+  */
+  const handlePaste = (
+    event: React.ClipboardEvent<HTMLDivElement>
+  ) => {
     const text = event.clipboardData?.getData('text')
     if (text) {
       parseText(
         text,
-        dataSources,
+        fields,
         activeFunction,
         config,
         pasteFreeTextAction,
@@ -453,7 +519,12 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     event.preventDefault()
   }
 
-  const handleCopy = (event: React.ClipboardEvent<HTMLDivElement>) => {
+  /*
+    @param {ClipboardEvent} event: clipboard event
+  */
+  const handleCopy = (
+    event: React.ClipboardEvent<HTMLDivElement>
+  ) => {
     const matcherText = (m: Matcher) =>
       `${m.operator !== 'and' && m.operator !== config.and
         ? `${m.operator} `
@@ -516,7 +587,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
                   onValidate={(m) =>
                     validateMatcher(
                       currentMatchers,
-                      dataSources,
+                      fields,
                       m,
                       activeMatcher,
                       config.operators,
@@ -562,7 +633,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
                     onValidate={(m) =>
                       validateMatcher(
                         currentMatchers,
-                        dataSources,
+                        fields,
                         m,
                         activeMatcher,
                         config.operators,
@@ -602,9 +673,9 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
 
 export type {
   Config,
-  DataSource,
-  DataSourceLookup,
-  DataSourceValue,
+  Field,
+  FieldLookup,
+  FieldValue,
   Matcher,
   ReactFacetedSearchStyles,
   Option,

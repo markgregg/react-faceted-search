@@ -1,13 +1,13 @@
 import {
   Config,
-  DataSource,
+  Field,
   FreTextFunc,
   Matcher,
   Nemonic,
   Option,
   SourceItem,
 } from './types'
-import { DataSourceLookup, DataSourceValue } from './types/DataSource'
+import { FieldLookup, FieldValue } from './types/Field'
 import { guid } from './utils'
 
 export const checkBracket = (
@@ -45,7 +45,7 @@ export const checkBracket = (
 
 export const validateMatcher = (
   matchers: Matcher[],
-  dataSources: DataSource[],
+  fields: Field[],
   matcher: Matcher,
   activeMatcher: number | null,
   operators: 'Simple' | 'AgGrid' | 'Complex',
@@ -69,13 +69,13 @@ export const validateMatcher = (
       return `When using AgGrid style operators, or can only be used for the same field`
     }
   }
-  const dataSource = dataSources.find((ds) => ds.name === matcher.source)
-  if (dataSource?.selectionLimit) {
+  const field = fields.find((ds) => ds.name === matcher.source)
+  if (field?.selectionLimit) {
     const currentCount = matchers.filter(
       (m) => matcher.key !== m.key && matcher.source === m.source,
     ).length
-    if (currentCount >= dataSource.selectionLimit) {
-      return `Datasource (${dataSource.name}) is limited to ${dataSource.selectionLimit} items.`
+    if (currentCount >= field.selectionLimit) {
+      return `Datasource (${field.name}) is limited to ${field.selectionLimit} items.`
     }
   }
   return null
@@ -83,7 +83,7 @@ export const validateMatcher = (
 
 export const parseText = (
   text: string,
-  dataSources: DataSource[],
+  fields: Field[],
   func: Nemonic | null,
   config: Config,
   pasteFreeTextAction: FreTextFunc = 'Individual',
@@ -108,11 +108,11 @@ export const parseText = (
       } else if (config.comparisons.includes(trimmedPart)) {
         comp = trimmedPart
       } else if (trimmedPart !== '') {
-        dataSources.forEach((ds) => {
+        fields.forEach((ds) => {
           if (
             (func &&
-              (func.optionalDataSources?.includes(ds.name) ||
-                func.requiredDataSources?.includes(ds.name))) ||
+              (func.optionalFields?.includes(ds.name) ||
+                func.requiredFields?.includes(ds.name))) ||
             (!func && !ds.functional)
           ) {
             ds.definitions.forEach((d) => {
@@ -212,8 +212,8 @@ export const parseText = (
 }
 
 const matchExpressions = (
-  ds: DataSource,
-  d: DataSourceValue,
+  ds: Field,
+  d: FieldValue,
   trimmedPart: string,
   index: number,
   elements: (Matcher | string)[],
@@ -240,8 +240,8 @@ const matchExpressions = (
 }
 
 const matchLists = (
-  ds: DataSource,
-  d: DataSourceLookup,
+  ds: Field,
+  d: FieldLookup,
   list: SourceItem[],
   trimmedPart: string,
   index: number,
@@ -274,8 +274,8 @@ const matchLists = (
 }
 
 const matchPromises = (
-  ds: DataSource,
-  d: DataSourceLookup,
+  ds: Field,
+  d: FieldLookup,
   matchOnPaste: (text: string) => Promise<SourceItem | null>,
   trimmedPart: string,
   index: number,
@@ -325,8 +325,8 @@ const joinText = (elements: (Matcher | string)[], config: Config): Matcher => {
 
 const getOption = (
   v: SourceItem,
-  d: DataSourceLookup,
-  ds: DataSource,
+  d: FieldLookup,
+  ds: Field,
 ): Option | undefined => {
   return typeof v === 'object'
     ? d.valueGetter && d.textGetter

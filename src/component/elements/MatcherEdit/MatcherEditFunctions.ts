@@ -1,8 +1,8 @@
 import { Option } from '@/component/types'
-import DataSource, {
-  DataSourceLookup,
+import Field, {
+  FieldLookup,
   SourceItem,
-} from '@/component/types/DataSource'
+} from '@/component/types/Field'
 import { getText, getValue } from '@/component/utils'
 
 export interface CategoryOptions {
@@ -20,7 +20,7 @@ export interface FunctionState {
 }
 
 const limitOptions = (
-  dsl: DataSourceLookup,
+  dsl: FieldLookup,
   options: Option[],
   defaultItemLimit: number,
 ): Option[] => {
@@ -32,14 +32,14 @@ const limitOptions = (
 
 const getInsertIndex = (
   allOptions: CategoryOptions[],
-  ds: DataSource,
-  dataSources: DataSource[],
+  ds: Field,
+  fields: Field[],
 ): number => {
   if (ds.precedence) {
     const dsp = ds.precedence
     return allOptions.findIndex((item) => {
       if (item.category === FUNCTIONS_TEXT) return false
-      const ds2 = dataSources.find((dsc) => dsc.title === item.category)
+      const ds2 = fields.find((dsc) => dsc.title === item.category)
       return dsp > (ds2?.precedence ?? 0)
     })
   }
@@ -49,7 +49,7 @@ const getInsertIndex = (
 export const mapOptions = (
   items: SourceItem[],
   name: string,
-  dsl: DataSourceLookup,
+  dsl: FieldLookup,
 ): Option[] => {
   return items.map((item) => {
     return {
@@ -61,19 +61,19 @@ export const mapOptions = (
 }
 
 export const addOptionsPlaceholder = (
-  ds: DataSource,
-  dsl: DataSourceLookup,
+  ds: Field,
+  dsl: FieldLookup,
   allOptions: CategoryOptions[],
   defaultItemLimit: number,
-  dataSources: DataSource[]
+  fields: Field[]
 ) => {
   if (!allOptions.find(opt => opt.category === ds.title && opt.options.length > 0)) {
-    addOptions(allOptions, ds, dsl, [], defaultItemLimit, dataSources)
+    addOptions(allOptions, ds, dsl, [], defaultItemLimit, fields)
   }
 }
 
 export const removeOptionsPlaceholder = (
-  ds: DataSource,
+  ds: Field,
   allOptions: CategoryOptions[]
 ) => {
   const index = allOptions.findIndex(opt => opt.category === ds.title && opt.options.length === 0)
@@ -87,23 +87,23 @@ export const removeOptionsPlaceholder = (
 
 export const updateOptions = (
   items: SourceItem[],
-  ds: DataSource,
-  dsl: DataSourceLookup,
+  ds: Field,
+  dsl: FieldLookup,
   allOptions: CategoryOptions[],
   defaultItemLimit: number,
-  dataSources: DataSource[],
+  fields: Field[],
   delayedPromise?: boolean
 ): number => {
   let options: Option[] = mapOptions(items, ds.name, dsl)
   if (options.length > 0) {
     options = limitOptions(dsl, options, defaultItemLimit)
-    addOptions(allOptions, ds, dsl, options, defaultItemLimit, dataSources, delayedPromise)
+    addOptions(allOptions, ds, dsl, options, defaultItemLimit, fields, delayedPromise)
   }
   return options.length
 }
 
 const combineOptions = (
-  ds: DataSourceLookup,
+  ds: FieldLookup,
   list1: Option[],
   list2: Option[],
   defaultItemLimit: number,
@@ -122,11 +122,11 @@ const combineOptions = (
 
 export const addOptions = (
   allOptions: CategoryOptions[],
-  ds: DataSource,
-  dsl: DataSourceLookup,
+  ds: Field,
+  dsl: FieldLookup,
   options: Option[],
   defaultItemLimit: number,
-  dataSources: DataSource[],
+  fields: Field[],
   delayedPromise?: boolean
 ) => {
   const currentEntry = allOptions.find((entry) => entry.category === ds.title)
@@ -140,17 +140,17 @@ export const addOptions = (
     )
     return
   }
-  insertOptions(allOptions, ds, options, dataSources, delayedPromise)
+  insertOptions(allOptions, ds, options, fields, delayedPromise)
 }
 
 export const insertOptions = (
   allOptions: CategoryOptions[],
-  ds: DataSource,
+  ds: Field,
   options: Option[],
-  dataSources: DataSource[],
+  fields: Field[],
   delayedPromise?: boolean
 ) => {
-  const index = getInsertIndex(allOptions, ds, dataSources)
+  const index = getInsertIndex(allOptions, ds, fields)
   if (index !== -1) {
     allOptions.splice(index, 0, { category: ds.title, options, delayedPromise })
   } else {
@@ -160,7 +160,7 @@ export const insertOptions = (
 
 export const matchItems = (
   item: SourceItem,
-  ds: DataSourceLookup,
+  ds: FieldLookup,
   searchText: string,
 ) => {
   const actualIem =

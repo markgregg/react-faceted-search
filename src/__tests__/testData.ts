@@ -1,10 +1,10 @@
 import Matcher from '../component/types/Matcher'
 import Config from '../component/types/Config'
-import DataSource, {
+import Field, {
   defaultComparison,
   numberComparisons,
   stringComparisons,
-} from '../component/types/DataSource'
+} from '../component/types/Field'
 
 const matcherAnd: Matcher = {
   key: 'test',
@@ -33,7 +33,7 @@ const closeBracket: Matcher = {
   text: '',
 }
 
-const testDataSources: DataSource[] = [
+const testFields: Field[] = [
   {
     name: 'list',
     title: 'list of strings',
@@ -95,7 +95,7 @@ const testDataSources: DataSource[] = [
 ]
 
 const testConfig: Config = {
-  dataSources: testDataSources,
+  fields: testFields,
   defaultComparison: '=',
   and: '&',
   or: '|',
@@ -106,7 +106,7 @@ const testConfig: Config = {
 }
 
 const testConfig2: Config = {
-  dataSources: testDataSources,
+  fields: testFields,
   defaultComparison: '=',
   and: '&',
   or: '|',
@@ -213,7 +213,7 @@ export {
   matcherAnd,
   testConfig,
   testConfig2,
-  testDataSources,
+  testFields,
   openBracket,
   closeBracket,
 }

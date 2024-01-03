@@ -1,5 +1,5 @@
 import { SourceItem, Value } from "./types"
-import { DataSourceLookup } from "./types/DataSource"
+import { FieldLookup } from "./types/Field"
 
 export const guid = (): string => {
   const gen = (n?: number): string => {
@@ -30,7 +30,7 @@ export const isUnique = (
 
 export const getValue = (
   item: SourceItem,
-  dsl: DataSourceLookup
+  dsl: FieldLookup
 ): Value => {
   return dsl.valueGetter && typeof item === 'object'
     ? dsl.valueGetter(item)
@@ -39,7 +39,7 @@ export const getValue = (
 
 export const getText = (
   item: SourceItem,
-  dsl: DataSourceLookup
+  dsl: FieldLookup
 ): string => {
   return dsl.textGetter && typeof item === 'object'
     ? dsl.textGetter(item)

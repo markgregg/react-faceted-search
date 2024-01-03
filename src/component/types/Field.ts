@@ -11,7 +11,7 @@ export type PromiseLookup = ((
   matchers: Matcher[],
 ) => Promise<SourceItem[]>)
 
-export interface DataSourceLookup {
+export interface FieldLookup {
   source:
   | SourceItem[]
   | PromiseLookup
@@ -23,24 +23,24 @@ export interface DataSourceLookup {
   searchStartLength?: number
 }
 
-export interface DataSourceValue {
+export interface FieldValue {
   match: RegExp | ((text: string) => boolean)
   value: (text: string) => Value
   matchOnPaste?: boolean
 }
 
-type DataSourceMatch = DataSourceLookup | DataSourceValue
+type FieldMatch = FieldLookup | FieldValue
 
-export interface DataSource {
-  name: string
-  title: string
-  comparisons: string[]
-  precedence?: number
-  selectionLimit?: number
-  functional?: boolean
-  hideOnShortcut?: boolean
-  definitions: DataSourceMatch[]
-  defaultOperator?: string
+export interface Field {
+  name: string //field name
+  title: string //title
+  comparisons: string[] //comparions avilable for field
+  precedence?: number //precendence (higher is higher in the list)
+  selectionLimit?: number //max items that can be selected
+  functional?: boolean //is field use with functions
+  hideOnShortcut?: boolean //hide on shortcut bar
+  definitions: FieldMatch[] //match definitions (promises,lists,regxe,functions`)
+  defaultOperator?: string //default operator
 }
 
-export default DataSource
+export default Field

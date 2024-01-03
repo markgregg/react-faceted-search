@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {
-  DataSource,
+  Field,
   Matcher,
   SourceItem,
   defaultComparison,
@@ -136,7 +136,7 @@ const AgGridExample: React.FC<AgGridExampleProps> = ({ options }) => {
     [],
   )
 
-  const dataSource = React.useMemo<DataSource[]>(
+  const field = React.useMemo<Field[]>(
     () => [
       {
         name: 'ISIN',
@@ -368,7 +368,7 @@ const AgGridExample: React.FC<AgGridExampleProps> = ({ options }) => {
       <div className="mainMultiselect">
         <ReactFacetedSearch
           matchers={matchers}
-          dataSources={dataSource}
+          fields={field}
           onMatchersChanged={matchersChanged}
           {...options}
           operators="AgGrid"
