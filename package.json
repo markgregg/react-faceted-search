@@ -1,6 +1,6 @@
 {
   "name": "react-faceted-power-search",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Multi-faceted search control",
   "keywords": [
     "react",
@@ -34,8 +34,8 @@
     "test": "jest"
   },
   "peerDependencies": {
-    "react": "^16.8.0",
-    "react-dom": "^16.8.0"
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
   },
   "dependencies": {
     "react-icons": "4.11.0"
