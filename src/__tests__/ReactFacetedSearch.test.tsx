@@ -347,14 +347,14 @@ describe('ReactFacetedSearch', () => {
 
     result.fireChange('#edit_input', { target: { value: '(' } })
     const bracket = result.getByText('and (')
-    expect(bracket.className).toBe('matcherViewWarning')
+    expect(bracket.className).toBe('MatcherDisplayWarning')
   })
 
   it('test highlight mismatched close brackets', async () => {
     const result = createReactFacetedSearch(multipleListMatchers)
     result.fireChange('#edit_input', { target: { value: ')' } })
     const bracket = result.getByText(')')
-    expect(bracket.className).toBe('matcherViewWarning')
+    expect(bracket.className).toBe('MatcherDisplayWarning')
   })
 
   it('test validate edit', async () => {

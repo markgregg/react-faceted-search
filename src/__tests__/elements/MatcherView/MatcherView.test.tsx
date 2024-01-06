@@ -79,6 +79,13 @@ describe('MatcherView', () => {
     const result = createMatcherView(matcherAnd, false, {
       hideOperators: true,
     })
+    result.assertElementText('#test_label', 'and = text')
+  })
+
+  it('test simple first operations', async () => {
+    const result = createMatcherView(matcherAnd, true, {
+      hideOperators: true,
+    })
     result.assertElementText('#test_label', '= text')
   })
 
@@ -194,9 +201,7 @@ const createMatcherView = (
           onEditNext={() => isEditNext = true}
           onInsertMatcher={() => isInserted = true}
           onSwapMatcher={() => isSwapped = true}
-          onChanging={() => isChanging = true}
-          hideOperators={options?.hideOperators}
-        />
+          onChanging={() => isChanging = true} />
       </configContext.Provider>
     </hasFocusContext.Provider>,
   ))

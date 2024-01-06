@@ -1,11 +1,15 @@
 .optionListMain {
-  z-index: 9999;
+  z-index: 9997;
   position: absolute;
   top: calc(100% + 5px);
   left: 0px;
   width: calc(100% - 2px);
   color: var(--reactFacetedSearchFontColor, black);
   background: transparent;
+}
+
+.optionListMainActive {
+  z-index: 9999;
 }
 
 .optionListMain ul {

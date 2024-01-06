@@ -1,0 +1,39 @@
+.matcherViewContainer {
+  display: flex;
+  flex-direction: column;
+  animation: moveIn 500ms ease-in-out forwards;
+}
+
+.matcherViewContainerHidden {
+  display: flex;
+  flex-direction: column;
+  animation: moveOut 500ms ease-in-out forwards;
+}
+
+.matcherViewWarning {
+  background: var(--reactFacetedSearchWarningBackgroundColor, orange);
+}
+
+.matchViewCategory {
+  font-size: xx-small;
+}
+
+@keyframes moveIn {
+  0% {
+    transform: scaleY(0) scaleX(0);
+  }
+
+  100% {
+    transform: scaleY(100%) scaleX(100%);
+  }
+}
+
+@keyframes moveOut {
+  0% {
+    transform: scaleY(100%) scaleX(100%);
+  }
+
+  100% {
+    transform: scaleY(0) scaleX(0);
+  }
+}

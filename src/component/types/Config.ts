@@ -23,4 +23,6 @@ export default interface Config {
   promiseDelay?: number //delay before issuing promises to server
   hideHelp?: boolean //hide help
   showWhenSearching?: boolean //show placeholders when searching
+  showCategory?: boolean
+  categoryPosition?: 'top' | 'left'
 }

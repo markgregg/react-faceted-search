@@ -260,11 +260,11 @@ const OptionList: React.FC<OptionListProps> = ({
   }
 
   const listStyle = {
-    ...styles?.optionsList
+    ...styles?.optionsList,
   }
 
   return (
-    <div id="option_list" className="optionListMain" style={listStyle}>
+    <div id="option_list" className={options.length > 0 ? 'optionListMain optionListMainActive' : 'optionListMain'} style={listStyle}>
       {
         options.length > 0
           ? <div className='optionDynamicList' style={{ maxHeight: config.maxDropDownHeight }}>

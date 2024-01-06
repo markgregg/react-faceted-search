@@ -36,6 +36,8 @@ import { IoIosSearch } from 'react-icons/io'
 import useExternalClicks from './hooks/useExternalClicks/useExternalClicks'
 import './ReactFacetedSearch.css'
 import { ComparisonItem } from './types/Config'
+import PasteOption from './types/PasteOption'
+import PasteOptionList from './elements/PasteOptionList'
 
 interface ReactFacetedSearchProps {
   matchers?: Matcher[] //when managed, the matchers
@@ -132,7 +134,9 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
       searchStartLength,
       promiseDelay,
       showWhenSearching,
-      hideHelp
+      hideHelp,
+      showCategory: showCategories,
+      categoryPosition
     }
   }, [
     fields,
@@ -147,8 +151,12 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     searchStartLength,
     promiseDelay,
     showWhenSearching,
-    hideHelp
+    hideHelp,
+    showCategories,
+    categoryPosition
   ])
+  const [pasteOptions, setPasteOptions] = React.useState<PasteOption[]>([])
+  const [selectedOption, setSelectedOption] = React.useState<PasteOption>()
 
   React.useEffect(() => {
     if (!inEdit) {
@@ -165,6 +173,44 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   }, [])
 
   useExternalClicks(editDivRef.current, clickedAway)
+
+  const deletePasteOption = (key: string) => {
+    setPasteOptions(pasteOptions.filter(p => p.key !== key))
+  }
+
+  const selectPasteOption = (key: string) => {
+    const pasteOption = pasteOptions.find(p => p.key === key)
+    if (pasteOption) {
+      setSelectedOption(pasteOption)
+      setCurrentMatchers(pasteOption.matchers)
+    }
+  }
+
+  const compeltePasteOption = (key?: string) => {
+    complete(key)
+  }
+
+  const clearAllPasteOptions = () => {
+    setSelectedOption(undefined)
+    setPasteOptions([])
+  }
+
+  const complete = (key?: string) => {
+    const pasteOption = pasteOptions.find(p => p.key === (key ?? selectedOption?.key))
+    if (onComplete && validateFunction()) {
+      setTimeout(() => {
+
+        onComplete(pasteOption ? pasteOption?.matchers : currentMatchers, pasteOption ? pasteOption?.function?.name : activeFunction?.name)
+        setCurrentMatchers([])
+        setActiveMatcher(null)
+        setActiveFunction(null)
+        setCurrentMatchers([])
+        if (pasteOption) {
+          setPasteOptions(pasteOptions.filter(p => p.key !== pasteOption.key))
+        }
+      }, 10)
+    }
+  }
 
   const clearActiveMatcher = () => {
     setActiveMatcher(null)
@@ -245,6 +291,15 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     setCurrentMatchers(newMatchers)
     notifyMatchersChanged(newMatchers)
     validateBrackets(newMatchers)
+    if (selectedOption) {
+      setPasteOptions(pasteOptions.map(p => p.key !== selectedOption.key
+        ? p
+        : {
+          ...selectedOption,
+          matchers: newMatchers
+        }
+      ))
+    }
   }
 
   /*
@@ -470,12 +525,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
       case 'Enter':
         if (onComplete) {
           if (validateFunction()) {
-            setTimeout(() => {
-              onComplete(currentMatchers, activeFunction?.name)
-              setCurrentMatchers([])
-              setActiveMatcher(null)
-              setActiveFunction(null)
-            }, 10)
+            complete()
           }
         }
         event.preventDefault()
@@ -608,10 +658,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
                   first={
                     index === 0 || currentMatchers[index - 1].comparison === '('
                   }
-                  hideOperators={operators === 'Simple'}
                   showWarning={mismatchedBrackets.includes(index)}
-                  showCategory={showCategories}
-                  categoryPosition={categoryPosition}
                   hideToolTip={hideToolTip}
                   allowFreeText={
                     allowFreeText ||
@@ -663,6 +710,18 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
                 </div>
               )}
             </div>
+            {
+              pasteOptions.length > 0 &&
+              <PasteOptionList
+                options={pasteOptions}
+                selectedOption={selectedOption?.key}
+                onSelectOption={selectPasteOption}
+                onDeleteOption={deletePasteOption}
+                onCompelteOption={compeltePasteOption}
+                onClearAll={clearAllPasteOptions}
+                styles={styles}
+              />
+            }
             <IoIosSearch className="reactFacetedSearchSearchIcon" />
           </div>
         </selectionContext.Provider>

@@ -4,7 +4,8 @@ import MatcherEdit from '../MatcherEdit'
 import { TiMinus } from 'react-icons/ti'
 import Nemonic from '@/component/types/Nemonic'
 import './MatcherView.css'
-import { matcherDisplay, matcherToolTip } from './MatcherViewFunctions'
+import { matcherToolTip } from './MatcherViewFunctions'
+import MatcherDisplay from '../MatcherDisplay'
 
 const reactFacetedSearchPrefix = 'multi-select/matcher/'
 
@@ -22,10 +23,7 @@ interface MatcherViewProps {
   onInsertMatcher?: (matcher: Matcher) => void //request parent edit matcher
   selected?: boolean //is selected
   first?: boolean //is first matcher in list
-  hideOperators?: boolean //show operators
   showWarning?: boolean //show warning
-  showCategory?: boolean //show categories
-  categoryPosition?: 'top' | 'left' //category position
   hideToolTip?: boolean //hide tool tips
   allowFreeText?: boolean //allow free text to pasted or entereds
   styles?: ReactFacetedSearchStyles
@@ -45,18 +43,15 @@ const MatcherView: React.FC<MatcherViewProps> = ({
   onInsertMatcher,
   selected,
   first,
-  hideOperators,
   showWarning,
-  showCategory,
-  categoryPosition,
   hideToolTip,
   allowFreeText,
   styles,
 }) => {
-  const labelRef = React.useRef<HTMLDivElement | null>(null)
   const [showToopTip, setShowToolTip] = React.useState<boolean>(false)
   const [deleted, setDeleted] = React.useState<boolean>(false)
   const [showDelete, setShowDelete] = React.useState<boolean>(false)
+  const [height, setHeight] = React.useState<number | undefined>()
 
   //if selected hide tooltips
   React.useEffect(() => {
@@ -192,45 +187,22 @@ const MatcherView: React.FC<MatcherViewProps> = ({
               id={matcher.key + '_tool_tip'}
               className="matcherViewToolTip"
               style={{
-                top: (labelRef.current?.clientHeight ?? 10) * -1 - 4,
+                top: (height ?? 10) * -1 - 4,
                 ...styles?.matcherToolTip,
               }}
             >
               {matcherToolTip(matcher)}
             </div>
           )}
-          <div
-            onMouseEnter={() => setShowToolTip(true)}
-            onMouseLeave={() => setShowToolTip(false)}
-            className={deleted ? 'matcherViewContainerHidden' : 'matcherViewContainer'}
-            style={
-              'key' in matcher && matcher.source !== ''
-                ? {
-                }
-                : {
-                  alignSelf: 'end',
-                }
-            }
-          >
-            {showCategory && 'key' in matcher && categoryPosition !== 'left' && (
-              <div className="matchViewCategory">{matcher.source}</div>
-            )}
-            <div
-              ref={labelRef}
-              id={'key' in matcher ? matcher.key + '_label' : 'function_label'}
-              className={showWarning ? 'matcherViewWarning' : ''}
-            >
-              {'key' in matcher
-                ? matcherDisplay(
-                  matcher,
-                  first ?? false,
-                  hideOperators ?? false,
-                  showCategory,
-                  categoryPosition
-                )
-                : matcher.name}
-            </div>
-          </div>
+          <MatcherDisplay
+            matcher={matcher}
+            first={first}
+            deleted={deleted}
+            showWarning={showWarning}
+            onLabelHeight={setHeight}
+            onShowToolTip={setShowToolTip}
+            styles={styles}
+          />
         </>
       )}
     </div>

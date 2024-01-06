@@ -1,0 +1,74 @@
+.pasteOptionListMain {
+  z-index: 9998;
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0px;
+  width: calc(100% - 2px);
+  color: var(--reactFacetedSearchFontColor, black);
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  border-top: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-left: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
+  border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
+  border-right: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
+  border-radius: 4px;
+  animation: growDown 500ms ease-in-out forwards;
+  transform-origin: top center;
+  background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
+}
+
+.pasteOptionListMain ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pasteOptionListOption {
+  padding-left: 10px;
+  padding-right: 5px;
+  text-align: start;
+  display: flex;
+  flex-direction: row;
+  column-gap: 4px;
+  align-items: center;
+}
+
+.pasteOptionListActiveOption {
+  background: var(--optionListActiveOption, lightgray);
+}
+
+.deleteIcon {
+  color: var(--reactFacetedSearchIconColor, black);
+  height: 100%;
+}
+
+.deleteIcon:hover {
+  color: var(--reactFacetedSearchIconHoverColor, rgb(140, 140, 140));
+}
+
+.pasteOptionClearAllDiv {
+  align-self: flex-end;
+  display: flex;
+}
+
+.pasteOptionClearAll {
+  color: var(--reactFacetedSearchIconColor, black);
+  font-size: large;
+  padding-right: 2px;
+}
+
+.pasteOptionClearAll:hover {
+  color: var(--reactFacetedSearchIconHoverColor, rgb(140, 140, 140));
+}
+
+@keyframes growDown {
+  0% {
+    transform: scaleY(0);
+  }
+
+  100% {
+    transform: scaleY(1);
+  }
+}
