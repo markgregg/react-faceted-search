@@ -18,6 +18,7 @@ export default interface Config {
   defaultItemLimit: number //default limit for items
   operators: 'Simple' | 'AgGrid' | 'Complex' //opertor complexity (and, and/or, and/or/bracket)
   operatorDisplay?: OperatorDisplay // show opertor names or symbols
+  maxMatcherWidth?: number
   maxDropDownHeight?: number //maximium heigt of dropdown
   searchStartLength?: number //min characters before search starts
   promiseDelay?: number //delay before issuing promises to server
@@ -26,3 +27,4 @@ export default interface Config {
   showCategory?: boolean
   categoryPosition?: 'top' | 'left'
 }
+

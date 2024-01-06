@@ -20,6 +20,10 @@ const SelectOptions: React.FC<SelectOptionsProps> = ({
         <input type='number' value={options.maxDropDownHeight} onChange={e => onValueChanged({ ...options, maxDropDownHeight: Number.parseFloat(e.target.value) })} />
       </div>
       <div className="optionGroup">
+        <label>maxMatcherWidth</label>
+        <input type='number' value={options.maxMatcherWidth} onChange={e => onValueChanged({ ...options, maxMatcherWidth: Number.parseFloat(e.target.value) })} />
+      </div>
+      <div className="optionGroup">
         <label>showCategories</label>
         <input type='checkbox' checked={options.showCategories} onChange={e => onValueChanged({ ...options, showCategories: e.target.checked })} />
       </div>

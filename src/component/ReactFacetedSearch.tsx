@@ -57,6 +57,7 @@ interface ReactFacetedSearchProps {
     missingFields?: string[],
   ) => void
   clearIcon?: React.ReactElement //clear item
+  maxMatcherWidth?: number //maximum width of a matcher view
   maxDropDownHeight?: number //max height of dropdown list
   searchStartLength?: number //number of characters before search starts
   showCategories?: boolean //show categories
@@ -92,6 +93,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   onComplete,
   onCompleteError,
   clearIcon,
+  maxMatcherWidth,
   maxDropDownHeight,
   searchStartLength,
   showCategories,
@@ -130,6 +132,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
       comparisonDescriptions: comparisonDescriptons ?? comparisonsDescriptionsFromFields(fields),
       defaultItemLimit: defaultItemLimit ?? ITEM_LIMIT,
       operators: operators ?? 'Complex',
+      maxMatcherWidth,
       maxDropDownHeight,
       searchStartLength,
       promiseDelay,
@@ -147,6 +150,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     or,
     defaultItemLimit,
     operators,
+    maxMatcherWidth,
     maxDropDownHeight,
     searchStartLength,
     promiseDelay,

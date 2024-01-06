@@ -62,7 +62,13 @@ const MatcherDisplay: React.FC<MatcherDisplayProps> = ({
         id={'key' in matcher ? matcher.key + '_label' : 'function_label'}
         className={showWarning ? 'MatcherDisplayWarning' : ''}
         style={{
-          ...(bold && { fontWeight: 'bold' })
+          ...(bold && { fontWeight: 'bold' }),
+          ...(config.maxMatcherWidth && {
+            maxWidth: config.maxMatcherWidth,
+            textOverflow: 'ellipsis',
+            textWrap: 'nowrap',
+            overflow: 'hidden'
+          })
         }}
       >
         {'key' in matcher
@@ -80,3 +86,4 @@ const MatcherDisplay: React.FC<MatcherDisplayProps> = ({
 }
 
 export default MatcherDisplay
+

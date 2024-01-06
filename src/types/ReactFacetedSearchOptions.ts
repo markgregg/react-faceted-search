@@ -1,5 +1,6 @@
 export interface ReactFacetedSearchOptions {
   maxDropDownHeight?: number
+  maxMatcherWidth?: number
   showCategories?: boolean
   categoryPosition?: 'top' | 'left'
   hideToolTip?: boolean
