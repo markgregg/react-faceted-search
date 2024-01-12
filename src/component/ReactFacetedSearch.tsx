@@ -227,9 +227,9 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
 
   const editFocus = () => {
     if (!hasFocus) {
-      clearActiveMatcher()
       setHasFocus(true)
     }
+    clearActiveMatcher()
   }
 
   /*
@@ -549,6 +549,11 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
           event.stopPropagation()
         }
         break
+      case 'Escape':
+        inputRef.current?.focus()
+        event.preventDefault()
+        event.stopPropagation()
+        break;
     }
   }
 
@@ -599,7 +604,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   }
 
   const setInputFocus = () => {
-    if (activeMatcher === null) {
+    if (activeMatcher === null && !hasFocus) {
       inputRef.current?.focus()
     }
   }
@@ -671,48 +676,46 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
                   styles={styles}
                 />
               ))}
-              {activeMatcher === null && (
-                <div
-                  className='defaultMatcherEdit'
-                  style={{
-                    paddingLeft: currentMatchers.length === 0 && activeFunction === null ? 4 : 0
-                  }}
-                >
-                  <MatcherEdit
-                    ref={inputRef}
-                    onMatcherChanged={addMatcher}
-                    onValidate={(m) =>
-                      validateMatcher(
-                        currentMatchers,
-                        fields,
-                        m,
-                        activeMatcher,
-                        config.operators,
-                        config.or,
-                      )
-                    }
-                    onFocus={editFocus}
-                    first={currentMatchers.length === 0}
-                    allowFunctions={
-                      currentMatchers.length === 0 && activeFunction === null
-                    }
-                    allowFreeText={
-                      allowFreeText ||
-                      (activeFunction !== null && activeFunction.allowFreeText)
-                    }
-                    onEditPrevious={editLast}
-                    onEditNext={editNext}
-                    onInsertMatcher={(newMatcher) =>
-                      insertMatcher(newMatcher, null)
-                    }
-                    onSetActiveFunction={(activeFunction) =>
-                      setActiveFunction(activeFunction)
-                    }
-                    onDeleteActiveFunction={deleteActiveFunction}
-                    styles={styles}
-                  />
-                </div>
-              )}
+              <div
+                className='defaultMatcherEdit'
+                style={{
+                  paddingLeft: currentMatchers.length === 0 && activeFunction === null ? 4 : 0
+                }}
+              >
+                <MatcherEdit
+                  ref={inputRef}
+                  onMatcherChanged={addMatcher}
+                  onValidate={(m) =>
+                    validateMatcher(
+                      currentMatchers,
+                      fields,
+                      m,
+                      activeMatcher,
+                      config.operators,
+                      config.or,
+                    )
+                  }
+                  onFocus={editFocus}
+                  first={currentMatchers.length === 0}
+                  allowFunctions={
+                    currentMatchers.length === 0 && activeFunction === null
+                  }
+                  allowFreeText={
+                    allowFreeText ||
+                    (activeFunction !== null && activeFunction.allowFreeText)
+                  }
+                  onEditPrevious={editLast}
+                  onEditNext={editNext}
+                  onInsertMatcher={(newMatcher) =>
+                    insertMatcher(newMatcher, null)
+                  }
+                  onSetActiveFunction={(activeFunction) =>
+                    setActiveFunction(activeFunction)
+                  }
+                  onDeleteActiveFunction={deleteActiveFunction}
+                  styles={styles}
+                />
+              </div>
             </div>
             {
               pasteOptions.length > 0 &&

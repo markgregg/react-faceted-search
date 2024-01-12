@@ -862,7 +862,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
     }
 
     const gotFocus = () => {
-      if (onFocus) {
+      if (onFocus && !matcher) {
         onFocus()
       }
     }

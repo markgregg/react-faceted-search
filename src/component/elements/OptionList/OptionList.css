@@ -116,7 +116,6 @@
   flex-direction: row;
   justify-content: space-around;
   flex-wrap: wrap;
-  background-color: lightgray;
 }
 
 .optionsStaticHeadersItem {
