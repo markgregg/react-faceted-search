@@ -14,9 +14,9 @@ import { FUNC_ID } from '@/component/types/Opton'
 import {
   CategoryOptions,
   FUNCTIONS_TEXT,
+  FlattenedOption,
   FunctionState,
   addOptionsPlaceholder,
-  getCategoryIndex,
   insertOptions,
   matchItems,
   removeOptionsPlaceholder,
@@ -24,6 +24,7 @@ import {
 } from './MatcherEditFunctions'
 import './MatcherEdit.css'
 import { FieldLookup, FieldValue, PromiseLookup } from '@/component/types/Field'
+import StaticOptionList from '../StaticOptionList'
 
 interface MatcherEditProps {
   matcher?: Matcher  //matcher to edit if contained in a view
@@ -81,13 +82,27 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
     const [matchText, setMatchText] = React.useState<string | null>(null)
     const key = React.useRef('')
     const [options, setOptions] = React.useState<CategoryOptions[]>([])
-    const [totalOptions, setTotalOptions] = React.useState<number>(0)
     const [activeOption, setActiveOption] = React.useState<number | null>(null)
     const [error, setError] = React.useState<string | null>(null)
     const [notifiedChanging, setNotifiedChaning] =
       React.useState<boolean>(false)
     const controlHasFocus = React.useContext<boolean>(hasFocusContext)
     const selection = React.useContext<Selection>(selectionContext)
+
+    const flattenedOptions: FlattenedOption[] = React.useMemo(() => {
+      let idx = 0
+      return options.flatMap((opt, index) => opt.options.map(option => { return { ...option, actualIndex: idx++, groupIndex: index } }))
+    }, [options])
+
+    React.useEffect(() => {
+      if (flattenedOptions.length > 0) {
+        if (activeOption === null) {
+          setActiveOption(0)
+        } else if (activeOption >= flattenedOptions.length) {
+          setActiveOption(flattenedOptions.length - 1)
+        }
+      }
+    }, [flattenedOptions])
 
     /*
           @param {string} op: operator to set input
@@ -155,7 +170,6 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       setComparison(null)
       setMatchText(null)
       setOptions([])
-      setTotalOptions(0)
       setActiveOption(null)
     }
 
@@ -550,17 +564,9 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
     const updateState = (functionState: FunctionState) => {
       //updates the options from the function state
       const { allOptions } = functionState
-      setOptions(allOptions)
+      setOptions([...allOptions])
       let totalCount = 0
       allOptions.forEach(op => totalCount += (op.options.length === 0 ? 1 : op.options.length))
-      setTotalOptions(totalCount)
-      if (totalCount > 0) {
-        if (activeOption === null) {
-          setActiveOption(0)
-        } else if (activeOption >= totalCount) {
-          setActiveOption(totalCount - 1)
-        }
-      }
     }
 
     /*
@@ -640,15 +646,15 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
     }
 
     const end = () => {
-      if (totalOptions > 0) {
-        setActiveOption(totalOptions - 1)
+      if (flattenedOptions.length > 0) {
+        setActiveOption(flattenedOptions.length - 1)
         return true
       }
       return false
     }
 
     const home = () => {
-      if (totalOptions > 0) {
+      if (flattenedOptions.length > 0) {
         setActiveOption(0)
         return true
       }
@@ -656,18 +662,30 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
     }
 
     const pageDown = () => {
-      if (totalOptions > 0) {
-        setActiveOption(
-          getCategoryIndex(activeOption ?? totalOptions - 1, options),
-        )
+      if (flattenedOptions.length > 1) {
+        if (activeOption !== null) {
+          const adjust = flattenedOptions.length > (config.maxItemsToShow ?? 5)
+            ? ((config.maxItemsToShow ?? 5) + 1) / 2
+            : Math.floor(flattenedOptions.length / 2)
+          setActiveOption(activeOption + adjust < flattenedOptions.length ? activeOption + adjust : (activeOption + adjust) - flattenedOptions.length)
+        } else {
+          setActiveOption(flattenedOptions.length - 1)
+        }
         return true
       }
       return false
     }
 
     const pageUp = () => {
-      if (totalOptions > 0) {
-        setActiveOption(getCategoryIndex(activeOption ?? 0, options, false))
+      if (flattenedOptions.length > 1) {
+        if (activeOption !== null) {
+          const adjust = flattenedOptions.length > (config.maxItemsToShow ?? 5)
+            ? ((config.maxItemsToShow ?? 5) + 1) / 2
+            : Math.floor(flattenedOptions.length / 2)
+          setActiveOption(activeOption - adjust >= 0 ? activeOption - adjust : flattenedOptions.length - (adjust - activeOption))
+        } else {
+          setActiveOption(0)
+        }
         return true
       }
       return false
@@ -677,7 +695,7 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
       if (activeOption === null) {
         setActiveOption(0)
       } else {
-        if (activeOption < totalOptions - 1) {
+        if (activeOption < flattenedOptions.length - 1) {
           setActiveOption(activeOption + 1)
         } else {
           setActiveOption(0)
@@ -688,12 +706,12 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
 
     const arrowUp = () => {
       if (activeOption === null) {
-        setActiveOption(totalOptions - 1)
+        setActiveOption(flattenedOptions.length - 1)
       } else {
         if (activeOption > 0) {
           setActiveOption(activeOption - 1)
         } else {
-          setActiveOption(totalOptions - 1)
+          setActiveOption(flattenedOptions.length - 1)
         }
       }
       return true
@@ -899,17 +917,24 @@ const MatcherEdit = React.forwardRef<HTMLInputElement, MatcherEditProps>(
           type="text"
           placeholder="..."
         />
-        {controlHasFocus && (
+        {
+          controlHasFocus && !config.hideStaticMenu && (activeOption === null || flattenedOptions.length === 0) && (
+            <StaticOptionList
+              onSelectFunction={func => setTextLine(null, null, null, func)}
+              onSelectComparison={comp => setTextLine(null, comp)}
+              onSelectOperator={op => setTextLine(op)}
+              onSelectText={option => setTextLine(null, null, option)}
+              styles={styles}
+            />
+          )
+        }
+        {controlHasFocus && activeOption !== null && flattenedOptions.length > 0 && (
           <OptionList
-            options={options}
+            flattenedOptions={flattenedOptions}
             activeOption={activeOption}
             onSelectActiveOption={setActiveOption}
             onSelectOption={(option, insert) => insert ? insertMatcher(option) : selectOption(option)}
             styles={styles}
-            onSelectFunction={func => setTextLine(null, null, null, func)}
-            onSelectComparison={comp => setTextLine(null, comp)}
-            onSelectOperator={op => setTextLine(op)}
-            onSelectText={option => setTextLine(null, null, option)}
           />
         )}
       </div>

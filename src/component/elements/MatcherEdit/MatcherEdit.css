@@ -2,7 +2,6 @@
   flex-grow: 1;
   display: flex;
   align-self: end;
-  position: relative;
 }
 
 .matcherEditMain input {

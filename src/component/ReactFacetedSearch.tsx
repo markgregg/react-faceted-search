@@ -58,7 +58,7 @@ interface ReactFacetedSearchProps {
   ) => void
   clearIcon?: React.ReactElement //clear item
   maxMatcherWidth?: number //maximum width of a matcher view
-  maxDropDownHeight?: number //max height of dropdown list
+  maxItemsToShow?: number //max height of dropdown list
   searchStartLength?: number //number of characters before search starts
   showCategories?: boolean //show categories
   categoryPosition?: 'top' | 'left' //category position
@@ -68,7 +68,7 @@ interface ReactFacetedSearchProps {
   pasteFreeTextAction?: FreTextFunc //how to handle free text when pasted
   promiseDelay?: number //delay before firing promise, used to reduce server calls
   showWhenSearching?: boolean //show placholder when searching
-  hideHelp?: boolean //hide help
+  hideStaticMenu?: boolean //hide help
   styles?: ReactFacetedSearchStyles //element styles
 }
 const comparisonsFromFields = (fields: Field[]): string[] => {
@@ -94,7 +94,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   onCompleteError,
   clearIcon,
   maxMatcherWidth,
-  maxDropDownHeight,
+  maxItemsToShow,
   searchStartLength,
   showCategories,
   categoryPosition,
@@ -104,7 +104,7 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
   pasteMatchTimeout,
   promiseDelay,
   showWhenSearching,
-  hideHelp,
+  hideStaticMenu,
   styles,
 }) => {
   const inputRef = React.useRef<HTMLInputElement | null>(null)
@@ -133,11 +133,11 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
       defaultItemLimit: defaultItemLimit ?? ITEM_LIMIT,
       operators: operators ?? 'Complex',
       maxMatcherWidth,
-      maxDropDownHeight,
+      maxItemsToShow,
       searchStartLength,
       promiseDelay,
       showWhenSearching,
-      hideHelp,
+      hideStaticMenu,
       showCategory: showCategories,
       categoryPosition
     }
@@ -151,11 +151,11 @@ const ReactFacetedSearch: React.FC<ReactFacetedSearchProps> = ({
     defaultItemLimit,
     operators,
     maxMatcherWidth,
-    maxDropDownHeight,
+    maxItemsToShow,
     searchStartLength,
     promiseDelay,
     showWhenSearching,
-    hideHelp,
+    hideStaticMenu,
     showCategories,
     categoryPosition
   ])

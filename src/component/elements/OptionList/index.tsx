@@ -1,47 +1,26 @@
 import * as React from 'react'
-import { Option, ReactFacetedSearchStyles, Config, Value } from '../../types'
+import { Option, ReactFacetedSearchStyles, Config } from '../../types'
 import { configContext } from '@/component/state/context'
-import { getText, getValue } from '@/component/utils'
-import { FaCaretDown, FaCaretUp, FaLongArrowAltLeft, FaLongArrowAltRight } from "react-icons/fa";
+import { FlattenedOption } from '../MatcherEdit/MatcherEditFunctions'
+import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import './OptionList.css'
-import { CategoryOptions } from '../MatcherEdit/MatcherEditFunctions';
+
 
 interface OptionListProps {
-  options: CategoryOptions[]
-  activeOption: number | null
+  flattenedOptions: FlattenedOption[]
+  activeOption: number
   onSelectOption: (option: Option, insert: boolean) => void
   onSelectActiveOption: (index: number) => void
   styles?: ReactFacetedSearchStyles
-  onSelectFunction: (func: string) => void
-  onSelectOperator: (op: string) => void
-  onSelectComparison: (comp: string) => void
-  onSelectText: (option: Option) => void
-}
-
-interface StaticItem {
-  text: string
-  value: Value
-  type: 'operator' | 'comparison' | string
-}
-
-interface StaticHeader {
-  header: string
-  items: StaticItem[]
 }
 
 const OptionList: React.FC<OptionListProps> = ({
-  options,
+  flattenedOptions,
   activeOption,
   onSelectOption,
   onSelectActiveOption,
-  onSelectFunction,
-  onSelectOperator,
-  onSelectComparison,
-  onSelectText,
   styles,
 }) => {
-  const [showSubItems, setShowSubItems] = React.useState<string | null>(null)
-  const [width, setWidth] = React.useState<number>(0)
   const activeItemRef = React.useRef<HTMLLIElement | null>(null)
   const config = React.useContext<Config>(configContext)
 
@@ -51,21 +30,6 @@ const OptionList: React.FC<OptionListProps> = ({
       activeItemRef.current.scrollIntoView({ block: 'end', behavior: 'smooth' })
     }
   }, [activeOption])
-
-  /*
-    @param {HTMLDivElement} divElement: current div element
-    @param {string} showItems: shown header
-    @param {string} header: header of item
-  */
-  const updateWidth = (
-    divElement: HTMLDivElement | null,
-    showItems: string | null,
-    header: string
-  ) => {
-    if (divElement && showItems === header) {
-      setWidth(divElement.clientWidth - 2)
-    }
-  }
 
   /*
     @param {MouseEvent} event: mouse event
@@ -80,183 +44,41 @@ const OptionList: React.FC<OptionListProps> = ({
   }
 
   const showOptions = () => {
-    let cnt = 0
-    let groupIndex: number | null = null
-    if (activeOption !== null) {
-      for (let i = 0; i < options.length; i++) {
-        if (activeOption >= cnt &&
-          activeOption < (cnt + options[i].options.length)) {
-          groupIndex = i
-          break
-        }
-        cnt += options[i].options.length
-      }
+    const itemsToShow = config.maxItemsToShow ?? 5 < flattenedOptions.length
+      ? config.maxItemsToShow ?? 5
+      : flattenedOptions.length
+    const topHalf = Math.floor((itemsToShow - 1) / 2)
+    const bottomHalf = itemsToShow - 1 - topHalf
+
+    const visibleOptions = [
+      ...(topHalf > 0 && topHalf - activeOption > 0 ? flattenedOptions.slice(flattenedOptions.length - (topHalf - activeOption), flattenedOptions.length + 1) : []),
+      ...(topHalf > 0 && activeOption > 0 ? flattenedOptions.slice(activeOption - topHalf - 1 < 0 ? 0 : activeOption - topHalf, activeOption) : []),
+      flattenedOptions[activeOption >= flattenedOptions.length ? flattenedOptions.length - 1 : activeOption],
+      ...(bottomHalf > 0 ? flattenedOptions.slice(activeOption + 1, activeOption + bottomHalf + 1 <= flattenedOptions.length ? activeOption + bottomHalf + 1 : flattenedOptions.length) : []),
+      ...(bottomHalf > 0 && activeOption + bottomHalf + 1 > flattenedOptions.length ? flattenedOptions.slice(0, activeOption + bottomHalf + 1 - flattenedOptions.length) : [])
+    ]
+    if (visibleOptions.findIndex(i => !i) !== -1) {
+      console.log('bad')
     }
-    cnt = 0
-
-    return options.map((entry, index) => {
-      const { category, options: categoryOptions, delayedPromise } = entry
-
-      //work out what help text to display for home/end/pageup/pagedown
-      const homeEnd = index === 0 && (groupIndex !== 0 || groupIndex > 0) ? 'Home' : index === options.length - 1 && (!groupIndex || groupIndex < options.length - 1) ? 'End' : ''
-      const pgUpDown = (index + 1 === groupIndex ? 'PgUp' : index - 1 === groupIndex ? 'PgDown' : '')
-      const allKeys = (homeEnd !== '' && pgUpDown !== '' ? `${homeEnd} / ${pgUpDown}` : homeEnd !== '' ? homeEnd : pgUpDown)
-
-      if (delayedPromise) {
-        console.log('here')
-      }
+    return visibleOptions.map(option => {
       return (
-        <ul key={category} className={delayedPromise ? 'optionListOptionDelayedItem' : ''}>
-          <li className="optionListCategory" style={styles?.optionCategory}>
-            {category}
-            <i>{
-              allKeys !== ''
-                ? ` (${allKeys})`
-                : ''
-            }</i>
-          </li>
-          {
-            categoryOptions.length === 0 &&
-            <li
-              className='optionListOption'
-              style={styles?.option}
-            >
-              Loading
-            </li>
+        <li
+          ref={option.actualIndex === activeOption ? activeItemRef : undefined}
+          className={
+            option.actualIndex === activeOption
+              ? 'optionListOption optionListActiveOption'
+              : 'optionListOption'
           }
-          {categoryOptions.map((option) => {
-            const idx = cnt++
-            return (
-              <li
-                ref={idx === activeOption ? activeItemRef : undefined}
-                className={
-                  idx === activeOption
-                    ? 'optionListOption optionListActiveOption'
-                    : 'optionListOption'
-                }
-                style={
-                  idx === activeOption ? styles?.activeOption : styles?.option
-                }
-                key={option.value.toString()}
-                onMouseEnter={() => onSelectActiveOption(idx)}
-                onClick={(e) => selectOption(e, option)}
-              >
-                {option.text}
-              </li>
-            )
-          })}
-        </ul>
+          style={
+            option.actualIndex === activeOption ? styles?.activeOption : styles?.option
+          }
+          key={option.actualIndex}
+          onClick={(e) => selectOption(e, option)}
+        >
+          {option.text} <span className='optionListCategory'>({option.source === '~~func~~' ? 'Function' : option.source})</span>
+        </li>
       )
     })
-  }
-
-  const showStaticOptions = (showItems: string | null) => {
-    //create a list of all items to show
-    const items: StaticHeader[] = []
-    if (config.functions && config.functions.length > 0) {
-      items.push({
-        header: 'Functions',
-        items: config.functions.map(func => { return { text: func.name, value: func.name, type: 'function' } })
-      })
-    }
-    if (config.operators !== 'Simple') {
-      items.push({
-        header: 'Operators',
-        items: [
-          { text: 'And', value: 'and', type: 'operator' },
-          { text: 'Or', value: 'or', type: 'operator' },
-          ...(config.operators === 'Complex' ? [{ text: '( Open bracket', value: '(', type: 'operator' }, { text: ') Close bracket', value: ')', type: 'operator' }] : [])
-        ]
-      })
-    }
-    if (config.operators !== 'Simple') {
-      items.push({
-        header: 'Comparisons',
-        items: config.comparisonDescriptions.map(c => { return { text: c.description === '' ? c.symbol : c.description, value: c.symbol, type: 'comparison' } })
-      })
-    }
-    //show static field lists
-    config.fields.forEach(ds => {
-      let lastItem: string | null = null
-      ds.definitions.forEach(def => {
-        if (!ds.hideOnShortcut) {
-          if ('source' in def && def.source) {
-            if (typeof def.source !== 'function') {
-              if (lastItem !== ds.title) {
-                items.push({
-                  header: ds.title,
-                  items: def.source.map(i => { return { text: getText(i, def), value: getValue(i, def), type: ds.name } })
-                })
-              }
-            }
-          }
-          lastItem = ds.title
-        }
-      })
-    })
-    return <div className='staticListContainer' >
-      {
-        !config.hideHelp &&
-        <div className='optionsHelp'>
-          <div><b>Edit Prev Matcher</b>  (Shift+<FaLongArrowAltLeft />)</div>
-          <div><b>Edit Next Matcher</b>  (Shift+<FaLongArrowAltRight />)</div>
-          <div><b>Move Matcher Left</b>  (Ctrl+<FaLongArrowAltLeft />)</div>
-          <div><b>Move Matcher Right</b>  (Ctrl+<FaLongArrowAltRight />)</div>
-          <div><b>Delete Matcher</b>  (Shift+BackSp)</div>
-          <div><b>Delete All</b>  (Ctrl+BackSp)</div>
-        </div>
-      }
-      <div className='optionStaticList'>
-        <div className='optionsStaticHeaders'>
-          {
-            items.map(item => ('header' in item)
-              && <div
-                id={'options_' + item.header.replaceAll(' ', '_')}
-                key={item.header}
-                className='optionsStaticHeadersItem'
-                onMouseEnter={() => setShowSubItems(item.header)}
-                onMouseLeave={() => setShowSubItems(null)}
-                ref={ref => updateWidth(ref, showItems, item.header)}
-              >
-                <span className='optionsStaticHeadersItemText'>{item.header}</span>
-                {
-                  showItems === item.header
-                    ? <FaCaretUp className='optionsStaticHeadersIcon' />
-                    : <FaCaretDown className='optionsStaticHeadersIcon' />
-                }
-                {
-                  showItems === item.header &&
-                  <div className='optionsStaticSubItemsList' style={{ width }}>
-                    {
-                      item.items.map(subItem =>
-                        <div
-                          className='optionStaticItem'
-                          key={subItem.text + '-' + subItem.type}
-                          onClick={() => {
-                            if (subItem.type === 'function') {
-                              onSelectFunction(subItem.text)
-                            } else if (subItem.type === 'comparison') {
-                              onSelectComparison(typeof subItem.value === 'string' ? subItem.value : subItem.value.toString())
-                            } else if (subItem.type === 'operator') {
-                              onSelectOperator(typeof subItem.value === 'string' ? subItem.value : subItem.value.toString())
-                            } else {
-                              onSelectText({ text: subItem.text, value: subItem.value, source: subItem.type })
-                            }
-                          }}
-                        >
-                          {subItem.text}
-                        </div>)
-                    }
-                  </div>
-                }
-              </div>
-            )
-          }
-        </div>
-        {
-        }
-      </div>
-    </div>
   }
 
   const listStyle = {
@@ -264,16 +86,32 @@ const OptionList: React.FC<OptionListProps> = ({
   }
 
   return (
-    <div id="option_list" className={options.length > 0 ? 'optionListMain optionListMainActive' : 'optionListMain'} style={listStyle}>
-      {
-        options.length > 0
-          ? <div className='optionDynamicList' style={{ maxHeight: config.maxDropDownHeight }}>
-            <div className='optionSelectMultiple'>{'Hold Shift to select multiple items'}</div>
-            {showOptions()}
-          </div>
-          : showStaticOptions(showSubItems)
-      }
-
+    <div id="option_list" className="optionListMain" style={listStyle}>
+      <div className="optionListContainer">
+        <ul>
+          {
+            flattenedOptions.length > (config.maxItemsToShow ?? 5) &&
+            <div className='optionListUpArrowAndPage'>
+              <FaCaretUp
+                className='optionListUpArrow'
+                onClick={() => onSelectActiveOption(activeOption > 0 ? activeOption - 1 : flattenedOptions.length - 1)}
+              />
+              <span className='optionListNavText'>{` (Hold Shift to select multiple)`}</span>
+            </div>
+          }
+          {showOptions()}
+          {
+            flattenedOptions.length > (config.maxItemsToShow ?? 5) &&
+            <div className='optionListDownArrowAndPage'>
+              <FaCaretDown
+                className='optionListDownArrow'
+                onClick={() => onSelectActiveOption(activeOption < flattenedOptions.length - 1 ? activeOption + 1 : 0)}
+              />
+              <span className='optionListNavText'>{` (${activeOption + 1} of ${flattenedOptions.length})`}</span>
+            </div>
+          }
+        </ul>
+      </div>
     </div>
   )
 }

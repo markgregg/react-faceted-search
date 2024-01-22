@@ -19,10 +19,10 @@ export default interface Config {
   operators: 'Simple' | 'AgGrid' | 'Complex' //opertor complexity (and, and/or, and/or/bracket)
   operatorDisplay?: OperatorDisplay // show opertor names or symbols
   maxMatcherWidth?: number
-  maxDropDownHeight?: number //maximium heigt of dropdown
+  maxItemsToShow?: number //maximium items to show in dropdown
   searchStartLength?: number //min characters before search starts
   promiseDelay?: number //delay before issuing promises to server
-  hideHelp?: boolean //hide help
+  hideStaticMenu?: boolean //hide help
   showWhenSearching?: boolean //show placeholders when searching
   showCategory?: boolean
   categoryPosition?: 'top' | 'left'

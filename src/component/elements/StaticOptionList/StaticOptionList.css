@@ -1,10 +1,11 @@
-.optionListMain {
-  z-index: 9999;
+.staticOptionListMain {
+  z-index: 9997;
   position: absolute;
   top: calc(100% + 5px);
   left: 0px;
   width: calc(100% - 2px);
   color: var(--reactFacetedSearchFontColor, black);
+  background: transparent;
   border-top: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
   border-left: var(--reactFacetedSearchOptionsBorder, 2px solid gainsboro);
   border-bottom: var(--reactFacetedSearchOptionsBorder, 2px solid darkgray);
@@ -15,8 +16,8 @@
   background: var(--reactFacetedSearchBackgroundColor, rgb(255, 255, 255));
 }
 
-.optionListContainer {
-  position: relative;
+.optionListMainActive {
+  z-index: 9999;
 }
 
 .optionListMain ul {
@@ -32,7 +33,6 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  user-select: none;
 }
 
 .optionListActiveOption {
@@ -40,9 +40,13 @@
   animation: bolder 300ms ease-in-out forwards;
 }
 
+
 .optionDynamicList {
   display: flex;
   flex-direction: column;
+  overflow: auto;
+  height: 100%;
+  width: 100%;
 
 }
 
@@ -143,48 +147,6 @@
   transform-origin: top center;
   padding-bottom: 5px;
   animation: growDown 500ms ease-in-out forwards;
-}
-
-.optionListUpArrowAndPage {
-  position: absolute;
-  top: 0;
-  left: calc(100% / 2);
-  display: flex;
-  align-items: center;
-  user-select: none;
-}
-
-.optionListUpArrow {
-  font-size: medium;
-}
-
-.optionListUpArrow:hover {
-  color: var(--reactFacetedSearchIconHoverColor, rgb(140, 140, 140));
-}
-
-.optionListDownArrowAndPage {
-  position: absolute;
-  top: calc(100% - 18px);
-  left: calc(100% / 2);
-  display: flex;
-  align-items: center;
-  user-select: none;
-}
-
-.optionListDownArrow {
-  font-size: medium;
-}
-
-.optionListDownArrow:hover {
-  color: var(--reactFacetedSearchIconHoverColor, rgb(140, 140, 140));
-}
-
-.optionListCategory {
-  font-size: xx-small;
-}
-
-.optionListNavText {
-  font-size: x-small;
 }
 
 @keyframes bolder {

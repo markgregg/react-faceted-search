@@ -11,6 +11,11 @@ export interface CategoryOptions {
   delayedPromise?: boolean
 }
 
+export interface FlattenedOption extends Option {
+  actualIndex: number
+  groupIndex: number
+}
+
 export const FUNCTIONS_TEXT = 'Functions'
 
 export interface FunctionState {
@@ -181,26 +186,3 @@ const getPosition = (index: number, options: CategoryOptions[]) => {
       .reduce((prev, curr) => prev + curr)
 }
 
-export const getCategoryIndex = (
-  currentIndex: number,
-  options: CategoryOptions[],
-  forward = true,
-) => {
-  let count = 0
-  const index = options.findIndex((entry) => {
-    const { options: opts } = entry
-    const outcome = currentIndex >= count && currentIndex < count + opts.length
-    count += opts.length
-    return outcome
-  })
-  return getPosition(
-    forward
-      ? index < options.length - 1
-        ? index + 1
-        : 0
-      : index > 0
-        ? index - 1
-        : options.length - 1,
-    options,
-  )
-}
